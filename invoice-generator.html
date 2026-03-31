@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Invoice Generator - Invoice2Excel Pro</title>
+  <meta name="description" content="Create professional GST invoices instantly. Free invoice generator with templates, GST calculation, PDF export, and bank details." />
+  <meta name="theme-color" content="#2563EB" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Crect x='8' y='4' width='14' height='18' rx='2' fill='white' opacity='.95'/%3E%3Crect x='10' y='9' width='10' height='3' rx='1' fill='%2310B981'/%3E%3Crect x='10' y='13' width='7' height='2' rx='1' fill='%236EE7B7'/%3E%3Crect x='10' y='16' width='8' height='2' rx='1' fill='%236EE7B7'/%3E%3Ccircle cx='20' cy='26' r='5' fill='%2310B981'/%3E%3Cpath d='M20 22v6M17 25l3 3 3-3' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Serif:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="generator.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8', light: '#3B82F6', lighter: '#DBEAFE' },
+            success: '#10B981', warning: '#F59E0B', danger: '#EF4444',
+            surface: '#F8FAFC', card: '#FFFFFF', ink: '#1E293B', muted: '#64748B'
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface font-sans text-ink min-h-screen" data-page="invoices">
+
+<!-- ===== HEADER ===== -->
+<header class="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-100">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <div class="w-9 h-9 bg-gradient-to-br from-primary to-blue-700 rounded-xl flex items-center justify-center shadow-md">
+          <i class="fas fa-file-excel text-white text-base"></i>
+        </div>
+        <div>
+          <span class="font-bold text-ink text-base leading-none block">Invoice2Excel</span>
+          <span class="text-xs text-primary font-semibold leading-none">PRO</span>
+        </div>
+      </a>
+      <div class="hidden sm:flex items-center gap-1 text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div>
+      <span class="hidden sm:block text-sm font-semibold text-ink">Invoice Generator</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <!-- User avatar (shown when logged in) -->
+      <div id="gen-user-avatar-wrap" class="hidden">
+        <div id="gen-user-avatar"
+          class="w-8 h-8 bg-gradient-to-br from-blue-400 to-primary rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer overflow-hidden"
+          title="My Account" onclick="window.location.href='dashboard.html'"
+        ></div>
+      </div>
+      <button onclick="saveDraft()" class="text-xs text-muted hover:text-ink border border-slate-200 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+        <i class="fas fa-save"></i><span class="hidden sm:inline">Save Draft</span>
+      </button>
+      <button onclick="newInvoice()" class="text-xs text-muted hover:text-primary border border-slate-200 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+        <i class="fas fa-plus"></i><span class="hidden sm:inline">New</span>
+      </button>
+      <a href="dashboard.html" class="text-xs text-muted hover:text-primary border border-slate-200 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+        <i class="fas fa-list"></i><span class="hidden sm:inline">My Invoices</span>
+      </a>
+      <button onclick="openPricingModal()" class="bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold px-3 py-2 rounded-lg shadow flex items-center gap-1">
+        <i class="fas fa-crown text-xs"></i><span class="hidden sm:inline">Go Pro</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== STEPPER ===== -->
+<div class="bg-white border-b border-slate-100 sticky top-[57px] z-30">
+  <div class="max-w-5xl mx-auto px-4 py-3">
+    <div class="flex items-center justify-between max-w-lg mx-auto">
+      <!-- Step 1 -->
+      <div class="gen-step active" id="stepper-1" onclick="goToStep(1)">
+        <div class="gen-step-circle">1</div>
+        <span class="gen-step-label">Invoice Details</span>
+      </div>
+      <div class="gen-step-line" id="line-1-2"></div>
+      <!-- Step 2 -->
+      <div class="gen-step" id="stepper-2" onclick="goToStep(2)">
+        <div class="gen-step-circle">2</div>
+        <span class="gen-step-label">Bank & UPI</span>
+      </div>
+      <div class="gen-step-line" id="line-2-3"></div>
+      <!-- Step 3 -->
+      <div class="gen-step" id="stepper-3" onclick="goToStep(3)">
+        <div class="gen-step-circle">3</div>
+        <span class="gen-step-label">Customize & Share</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="max-w-5xl mx-auto px-4 py-5 pb-32">
+
+  <!-- ===================== STEP 1: INVOICE DETAILS ===================== -->
+  <div id="step-panel-1" class="gen-panel active">
+
+    <!-- Top row: Invoice info + Logo -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+
+      <!-- Invoice Basic Info -->
+      <div class="gen-card md:col-span-2">
+        <div class="gen-card-header">
+          <i class="fas fa-file-invoice text-primary"></i> Invoice Information
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
+          <div class="gen-field">
+            <label class="gen-label">Invoice Number <span class="text-danger">*</span></label>
+            <div class="flex gap-2">
+              <input type="text" id="inv-number" class="gen-input flex-1" placeholder="INV-2025-001" />
+              <button onclick="autoGenInvNum()" class="gen-btn-icon" title="Auto-generate"><i class="fas fa-sync-alt text-xs"></i></button>
+            </div>
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">Invoice Type</label>
+            <select id="inv-type" class="gen-input">
+              <option value="Tax Invoice">Tax Invoice</option>
+              <option value="Invoice">Invoice</option>
+              <option value="Proforma Invoice">Proforma Invoice</option>
+              <option value="Credit Note">Credit Note</option>
+              <option value="Debit Note">Debit Note</option>
+              <option value="Quotation">Quotation</option>
+              <option value="Purchase Order">Purchase Order</option>
+            </select>
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">Invoice Date <span class="text-danger">*</span></label>
+            <input type="date" id="inv-date" class="gen-input" />
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">
+              Due Date
+              <label class="toggle-wrap ml-2"><input type="checkbox" id="due-date-toggle" onchange="toggleDueDate()" /><span class="toggle-slider"></span></label>
+            </label>
+            <input type="date" id="inv-due-date" class="gen-input" disabled />
+          </div>
+          <!-- Custom fields container -->
+          <div id="custom-fields-container" class="sm:col-span-2 hidden space-y-2"></div>
+          <div class="sm:col-span-2">
+            <button onclick="addCustomField()" class="text-xs text-primary hover:text-primary-dark flex items-center gap-1.5 font-medium transition-colors">
+              <i class="fas fa-plus-circle"></i> Add Custom Field
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Upload -->
+      <div class="gen-card">
+        <div class="gen-card-header"><i class="fas fa-image text-primary"></i> Logo</div>
+        <div class="p-4 flex flex-col items-center gap-3">
+          <div id="logo-preview-wrap" class="w-full h-28 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary transition-colors" onclick="document.getElementById('logo-input').click()">
+            <div id="logo-placeholder" class="text-center">
+              <i class="fas fa-cloud-upload-alt text-slate-300 text-3xl mb-1"></i>
+              <p class="text-xs text-muted">Upload Logo</p>
+              <p class="text-xs text-slate-300">PNG / JPG</p>
+            </div>
+            <img id="logo-preview-img" class="hidden max-h-24 max-w-full object-contain" alt="Logo" />
+          </div>
+          <input type="file" id="logo-input" accept="image/png,image/jpeg,image/gif,image/svg+xml" class="hidden" onchange="handleLogoUpload(event)" />
+          <div class="flex gap-2 w-full">
+            <button onclick="document.getElementById('logo-input').click()" class="flex-1 text-xs text-primary border border-primary/30 py-2 rounded-lg hover:bg-primary/5 transition-colors">Upload</button>
+            <button onclick="removeLogo()" class="text-xs text-danger border border-danger/20 py-2 px-3 rounded-lg hover:bg-danger/5 transition-colors">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Business + Client row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- Your Business Details -->
+      <div class="gen-card">
+        <div class="gen-card-header"><i class="fas fa-building text-primary"></i> Your Business Details</div>
+        <div class="p-4 space-y-3">
+          <div class="gen-field">
+            <label class="gen-label">Business Name <span class="text-danger">*</span></label>
+            <input type="text" id="biz-name" class="gen-input" placeholder="Your Company Name" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="gen-field">
+              <label class="gen-label">Country</label>
+              <select id="biz-country" class="gen-input" onchange="updateCurrency()">
+                <option value="India">India (₹)</option>
+                <option value="USA">USA ($)</option>
+                <option value="UK">UK (£)</option>
+                <option value="EU">EU (€)</option>
+                <option value="Australia">Australia (A$)</option>
+                <option value="Canada">Canada (C$)</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Phone</label>
+              <input type="tel" id="biz-phone" class="gen-input" placeholder="+91 98765 43210" />
+            </div>
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">Address</label>
+            <textarea id="biz-address" class="gen-input resize-none" rows="2" placeholder="Street address"></textarea>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="gen-field">
+              <label class="gen-label">City</label>
+              <input type="text" id="biz-city" class="gen-input" placeholder="City" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">State</label>
+              <input type="text" id="biz-state" class="gen-input" placeholder="State" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Pincode</label>
+              <input type="text" id="biz-pin" class="gen-input" placeholder="560001" />
+            </div>
+          </div>
+          <!-- Optional fields -->
+          <div class="grid grid-cols-2 gap-2" id="biz-optional-fields">
+            <div class="gen-field hidden" id="biz-email-wrap">
+              <label class="gen-label">Email</label>
+              <input type="email" id="biz-email" class="gen-input" placeholder="email@company.com" />
+            </div>
+            <div class="gen-field hidden" id="biz-pan-wrap">
+              <label class="gen-label">PAN</label>
+              <input type="text" id="biz-pan" class="gen-input" placeholder="ABCDE1234F" />
+            </div>
+            <div class="gen-field hidden" id="biz-gstin-wrap">
+              <label class="gen-label">GSTIN</label>
+              <input type="text" id="biz-gstin" class="gen-input" placeholder="29ABCDE1234F1Z5" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="toggleOptField('biz','email')" class="text-xs text-primary border border-primary/20 px-2 py-1 rounded-full hover:bg-primary/5 transition-colors flex items-center gap-1"><i class="fas fa-plus text-xs"></i>Email</button>
+            <button onclick="toggleOptField('biz','gstin')" class="text-xs text-primary border border-primary/20 px-2 py-1 rounded-full hover:bg-primary/5 transition-colors flex items-center gap-1"><i class="fas fa-plus text-xs"></i>GSTIN</button>
+            <button onclick="toggleOptField('biz','pan')" class="text-xs text-primary border border-primary/20 px-2 py-1 rounded-full hover:bg-primary/5 transition-colors flex items-center gap-1"><i class="fas fa-plus text-xs"></i>PAN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client Details -->
+      <div class="gen-card">
+        <div class="gen-card-header"><i class="fas fa-user-tie text-primary"></i> Client Details</div>
+        <div class="p-4 space-y-3">
+          <div class="gen-field">
+            <label class="gen-label">Client / Business Name <span class="text-danger">*</span></label>
+            <input type="text" id="client-name" class="gen-input" placeholder="Client Company Name" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="gen-field">
+              <label class="gen-label">Country</label>
+              <select id="client-country" class="gen-input">
+                <option value="India">India</option>
+                <option value="USA">USA</option>
+                <option value="UK">UK</option>
+                <option value="EU">EU</option>
+                <option value="Australia">Australia</option>
+                <option value="Canada">Canada</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Phone</label>
+              <input type="tel" id="client-phone" class="gen-input" placeholder="+91 98765 43210" />
+            </div>
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">Address</label>
+            <textarea id="client-address" class="gen-input resize-none" rows="2" placeholder="Street address"></textarea>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="gen-field">
+              <label class="gen-label">City</label>
+              <input type="text" id="client-city" class="gen-input" placeholder="City" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">State</label>
+              <input type="text" id="client-state" class="gen-input" placeholder="State" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Pincode</label>
+              <input type="text" id="client-pin" class="gen-input" placeholder="560001" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2" id="client-optional-fields">
+            <div class="gen-field hidden" id="client-email-wrap">
+              <label class="gen-label">Email</label>
+              <input type="email" id="client-email" class="gen-input" placeholder="client@company.com" />
+            </div>
+            <div class="gen-field hidden" id="client-pan-wrap">
+              <label class="gen-label">PAN</label>
+              <input type="text" id="client-pan" class="gen-input" placeholder="ABCDE1234F" />
+            </div>
+            <div class="gen-field hidden" id="client-gstin-wrap">
+              <label class="gen-label">GSTIN</label>
+              <input type="text" id="client-gstin" class="gen-input" placeholder="29ABCDE1234F1Z5" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="toggleOptField('client','email')" class="text-xs text-primary border border-primary/20 px-2 py-1 rounded-full hover:bg-primary/5 transition-colors flex items-center gap-1"><i class="fas fa-plus text-xs"></i>Email</button>
+            <button onclick="toggleOptField('client','gstin')" class="text-xs text-primary border border-primary/20 px-2 py-1 rounded-full hover:bg-primary/5 transition-colors flex items-center gap-1"><i class="fas fa-plus text-xs"></i>GSTIN</button>
+            <button onclick="toggleOptField('client','pan')" class="text-xs text-primary border border-primary/20 px-2 py-1 rounded-full hover:bg-primary/5 transition-colors flex items-center gap-1"><i class="fas fa-plus text-xs"></i>PAN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== ITEMS TABLE ====== -->
+    <div class="gen-card mb-4">
+      <div class="gen-card-header flex items-center justify-between">
+        <span><i class="fas fa-list text-primary"></i> Line Items</span>
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-muted flex items-center gap-1.5">
+            <input type="checkbox" id="show-hsn" onchange="toggleTableCol('hsn')" checked class="rounded" />
+            HSN/SAC
+          </label>
+          <label class="text-xs text-muted flex items-center gap-1.5">
+            <input type="checkbox" id="show-gst" onchange="toggleTableCol('gst')" checked class="rounded" />
+            GST
+          </label>
+          <label class="text-xs text-muted flex items-center gap-1.5">
+            <input type="checkbox" id="show-disc" onchange="toggleTableCol('disc')" class="rounded" />
+            Discount
+          </label>
+        </div>
+      </div>
+
+      <!-- Table scroll wrapper -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" id="items-gen-table">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="gen-th w-8">#</th>
+              <th class="gen-th text-left min-w-[160px]">Item Name & Description</th>
+              <th class="gen-th w-24 col-hsn">HSN/SAC</th>
+              <th class="gen-th w-20 col-gst">GST %</th>
+              <th class="gen-th w-16">Qty</th>
+              <th class="gen-th w-24">Rate</th>
+              <th class="gen-th w-20 col-disc hidden">Disc %</th>
+              <th class="gen-th w-24 text-right">Amount</th>
+              <th class="gen-th w-8"></th>
+            </tr>
+          </thead>
+          <tbody id="items-gen-tbody">
+            <!-- rows added by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3 border-t border-slate-100 flex items-center gap-3">
+        <button onclick="addItemRow()" class="text-xs bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-xl font-semibold hover:bg-primary/20 transition-colors flex items-center gap-2">
+          <i class="fas fa-plus"></i> Add Line Item
+        </button>
+        <span class="text-xs text-muted"><span id="item-row-count">0</span> items</span>
+      </div>
+
+      <!-- Totals panel -->
+      <div class="border-t border-slate-200 p-4">
+        <div class="flex flex-col md:flex-row gap-4">
+          <!-- Left: additional charges -->
+          <div class="flex-1 space-y-2">
+            <div class="gen-field" id="discount-wrap">
+              <label class="gen-label flex items-center gap-2">
+                Discount
+                <select id="disc-type" class="gen-input py-0.5 px-1 text-xs w-16" onchange="recalcTotals()">
+                  <option value="pct">%</option>
+                  <option value="flat">₹</option>
+                </select>
+              </label>
+              <input type="number" id="disc-value" class="gen-input" placeholder="0" min="0" oninput="recalcTotals()" />
+            </div>
+            <div class="gen-field hidden" id="extra-charge-wrap">
+              <label class="gen-label">Additional Charges (label)</label>
+              <div class="flex gap-2">
+                <input type="text" id="extra-charge-label" class="gen-input flex-1" placeholder="Shipping / Handling..." oninput="recalcTotals()" />
+                <input type="number" id="extra-charge-value" class="gen-input w-24" placeholder="0" min="0" oninput="recalcTotals()" />
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="document.getElementById('extra-charge-wrap').classList.toggle('hidden')" class="text-xs text-primary flex items-center gap-1 hover:text-primary-dark transition-colors">
+                <i class="fas fa-plus-circle"></i> Extra Charge
+              </button>
+              <label class="text-xs text-muted flex items-center gap-1.5 ml-4">
+                <input type="checkbox" id="round-off-toggle" onchange="recalcTotals()" class="rounded" />
+                Round Off
+              </label>
+            </div>
+          </div>
+          <!-- Right: totals -->
+          <div class="min-w-[240px] space-y-1.5" id="totals-panel">
+            <div class="flex justify-between text-sm py-1 border-b border-dashed border-slate-200">
+              <span class="text-muted">Subtotal</span>
+              <span class="font-medium" id="total-subtotal">₹0</span>
+            </div>
+            <div class="flex justify-between text-sm py-1 border-b border-dashed border-slate-200 hidden" id="total-disc-row">
+              <span class="text-muted">Discount</span>
+              <span class="font-medium text-danger" id="total-disc-val">-₹0</span>
+            </div>
+            <div class="flex justify-between text-sm py-1 border-b border-dashed border-slate-200 hidden" id="total-taxable-row">
+              <span class="text-muted">Taxable Amount</span>
+              <span class="font-medium" id="total-taxable">₹0</span>
+            </div>
+            <div class="flex justify-between text-sm py-1 border-b border-dashed border-slate-200 hidden" id="total-cgst-row">
+              <span class="text-muted">CGST</span>
+              <span class="font-medium" id="total-cgst">₹0</span>
+            </div>
+            <div class="flex justify-between text-sm py-1 border-b border-dashed border-slate-200 hidden" id="total-sgst-row">
+              <span class="text-muted">SGST</span>
+              <span class="font-medium" id="total-sgst">₹0</span>
+            </div>
+            <div class="flex justify-between text-sm py-1 border-b border-dashed border-slate-200 hidden" id="total-igst-row">
+              <span class="text-muted">IGST</span>
+              <span class="font-medium" id="total-igst">₹0</span>
+            </div>
+            <div class="flex justify-between text-sm py-1 border-b border-dashed border-slate-200 hidden" id="total-extra-row">
+              <span class="text-muted" id="total-extra-label">Extra</span>
+              <span class="font-medium" id="total-extra-val">₹0</span>
+            </div>
+            <div class="flex justify-between text-sm py-1 hidden" id="total-roundoff-row">
+              <span class="text-muted">Round Off</span>
+              <span class="font-medium" id="total-roundoff">₹0</span>
+            </div>
+            <div class="flex justify-between font-bold text-base py-2 bg-primary/5 px-3 rounded-xl mt-1">
+              <span class="text-primary">Grand Total</span>
+              <span class="text-primary" id="total-grand">₹0</span>
+            </div>
+            <p class="text-xs text-muted italic" id="total-in-words"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== EXTRA SECTIONS ====== -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+      <!-- Terms & Conditions -->
+      <div class="gen-card" id="terms-card">
+        <div class="gen-card-header flex items-center justify-between">
+          <span><i class="fas fa-file-contract text-primary"></i> Terms & Conditions</span>
+          <label class="toggle-wrap"><input type="checkbox" id="terms-toggle" onchange="toggleSection('terms')" checked /><span class="toggle-slider"></span></label>
+        </div>
+        <div id="terms-body" class="p-4">
+          <textarea id="terms-text" class="gen-input resize-none w-full" rows="3" placeholder="1. Payment due within 15 days from invoice date.&#10;2. Overdue interest @ 14% p.a. will be charged.&#10;3. Please quote invoice number when remitting funds.">1. Payment due within 15 days from invoice date.
+2. Overdue interest @ 14% p.a. will be charged.
+3. Please quote invoice number when remitting funds.</textarea>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="gen-card" id="notes-card">
+        <div class="gen-card-header flex items-center justify-between">
+          <span><i class="fas fa-sticky-note text-primary"></i> Additional Notes</span>
+          <label class="toggle-wrap"><input type="checkbox" id="notes-toggle" onchange="toggleSection('notes')" checked /><span class="toggle-slider"></span></label>
+        </div>
+        <div id="notes-body" class="p-4">
+          <textarea id="notes-text" class="gen-input resize-none w-full" rows="3" placeholder="Any additional notes or instructions for the client..."></textarea>
+        </div>
+      </div>
+
+      <!-- Signature -->
+      <div class="gen-card" id="signature-card">
+        <div class="gen-card-header flex items-center justify-between">
+          <span><i class="fas fa-signature text-primary"></i> Signature</span>
+          <label class="toggle-wrap"><input type="checkbox" id="sig-toggle" onchange="toggleSection('sig')" /><span class="toggle-slider"></span></label>
+        </div>
+        <div id="sig-body" class="p-4 hidden">
+          <div class="flex flex-col gap-3">
+            <div class="gen-field">
+              <label class="gen-label">Authorized Signatory Name</label>
+              <input type="text" id="sig-name" class="gen-input" placeholder="For Company Name" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Upload Signature Image (optional)</label>
+              <div class="border-2 border-dashed border-slate-200 rounded-xl p-3 flex items-center justify-center cursor-pointer hover:border-primary transition-colors" onclick="document.getElementById('sig-input').click()">
+                <img id="sig-preview" class="hidden max-h-12" alt="Signature" />
+                <div id="sig-placeholder" class="text-center">
+                  <i class="fas fa-upload text-slate-300 text-xl mb-1"></i>
+                  <p class="text-xs text-muted">Upload signature image</p>
+                </div>
+              </div>
+              <input type="file" id="sig-input" class="hidden" accept="image/*" onchange="handleSigUpload(event)" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Info -->
+      <div class="gen-card" id="addinfo-card">
+        <div class="gen-card-header flex items-center justify-between">
+          <span><i class="fas fa-info-circle text-primary"></i> Additional Info</span>
+          <label class="toggle-wrap"><input type="checkbox" id="addinfo-toggle" onchange="toggleSection('addinfo')" /><span class="toggle-slider"></span></label>
+        </div>
+        <div id="addinfo-body" class="p-4 hidden">
+          <div class="space-y-2">
+            <div class="gen-field">
+              <label class="gen-label">IRN / E-Invoice Number</label>
+              <input type="text" id="addinfo-irn" class="gen-input" placeholder="IRN number if applicable" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">E-Way Bill Number</label>
+              <input type="text" id="addinfo-eway" class="gen-input" placeholder="E-Way bill number" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Place of Supply</label>
+              <input type="text" id="addinfo-pos" class="gen-input" placeholder="State / City" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Step 1 → Next button -->
+    <div class="flex justify-end mt-4">
+      <button onclick="goToStep(2)" class="gen-btn-primary px-8">
+        Next: Bank & UPI Details <i class="fas fa-arrow-right ml-2"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 2: BANK & UPI ===================== -->
+  <div id="step-panel-2" class="gen-panel hidden">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+      <!-- Bank Account -->
+      <div class="gen-card">
+        <div class="gen-card-header flex items-center justify-between">
+          <span><i class="fas fa-university text-primary"></i> Bank Account</span>
+          <label class="toggle-wrap"><input type="checkbox" id="bank-enable" onchange="toggleBankSection()" /><span class="toggle-slider"></span></label>
+        </div>
+        <div id="bank-body" class="p-4 hidden space-y-3">
+          <div class="gen-field">
+            <label class="gen-label">Account Holder Name</label>
+            <input type="text" id="bank-holder" class="gen-input" placeholder="Your / Company Name" />
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">Account Number</label>
+            <input type="text" id="bank-acno" class="gen-input font-mono" placeholder="1234 5678 9012 3456" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="gen-field">
+              <label class="gen-label">IFSC Code</label>
+              <input type="text" id="bank-ifsc" class="gen-input font-mono" placeholder="HDFC0001234" oninput="this.value=this.value.toUpperCase()" />
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Bank Name</label>
+              <input type="text" id="bank-name" class="gen-input" placeholder="HDFC Bank" />
+            </div>
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">Account Type</label>
+            <select id="bank-type" class="gen-input">
+              <option>Savings</option>
+              <option>Current</option>
+              <option>OD</option>
+            </select>
+          </div>
+        </div>
+        <div id="bank-disabled-msg" class="p-4 text-center text-muted text-sm">
+          <i class="fas fa-toggle-off text-slate-300 text-2xl mb-2 block"></i>
+          Toggle on to add bank details
+        </div>
+      </div>
+
+      <!-- UPI -->
+      <div class="gen-card">
+        <div class="gen-card-header flex items-center justify-between">
+          <span><i class="fas fa-qrcode text-primary"></i> UPI Details</span>
+          <label class="toggle-wrap"><input type="checkbox" id="upi-enable" onchange="toggleUpiSection()" /><span class="toggle-slider"></span></label>
+        </div>
+        <div id="upi-body" class="p-4 hidden space-y-3">
+          <div class="gen-field">
+            <label class="gen-label">UPI ID</label>
+            <input type="text" id="upi-id" class="gen-input font-mono" placeholder="yourname@okhdfc" oninput="updateQRCode()" />
+          </div>
+          <div class="gen-field">
+            <label class="gen-label">Payee Name (for QR)</label>
+            <input type="text" id="upi-name" class="gen-input" placeholder="Your Business Name" oninput="updateQRCode()" />
+          </div>
+          <!-- QR Code preview -->
+          <div class="flex flex-col items-center gap-2 mt-2">
+            <div id="qr-preview-container" class="hidden flex-col items-center gap-2">
+              <div id="qr-code-display" class="w-32 h-32 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200">
+                <i class="fas fa-qrcode text-slate-300 text-4xl"></i>
+              </div>
+              <p class="text-xs text-muted" id="qr-upi-label">username@vpa</p>
+              <p class="text-xs text-slate-400">QR shown on invoice</p>
+            </div>
+            <div id="qr-placeholder" class="text-center text-muted text-xs">
+              <i class="fas fa-qrcode text-slate-200 text-5xl mb-2 block"></i>
+              Enter UPI ID to generate QR code
+            </div>
+          </div>
+        </div>
+        <div id="upi-disabled-msg" class="p-4 text-center text-muted text-sm">
+          <i class="fas fa-toggle-off text-slate-300 text-2xl mb-2 block"></i>
+          Toggle on to add UPI details
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 navigation -->
+    <div class="flex items-center justify-between mt-4">
+      <button onclick="goToStep(1)" class="gen-btn-secondary px-6">
+        <i class="fas fa-arrow-left mr-2"></i> Back
+      </button>
+      <div class="flex gap-3">
+        <button onclick="goToStep(3)" class="text-sm text-muted hover:text-ink border border-slate-200 px-5 py-2.5 rounded-xl transition-colors">
+          Skip & Continue
+        </button>
+        <button onclick="goToStep(3)" class="gen-btn-primary px-8">
+          Next: Customize <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 3: CUSTOMIZE & SHARE ===================== -->
+  <div id="step-panel-3" class="gen-panel hidden">
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+      <!-- LEFT: Controls -->
+      <div class="lg:col-span-2 space-y-4">
+
+        <!-- Template Selector -->
+        <div class="gen-card">
+          <div class="gen-card-header"><i class="fas fa-palette text-primary"></i> Invoice Template</div>
+          <div class="p-3">
+            <div class="flex gap-2 overflow-x-auto pb-1 template-scroll" id="template-selector">
+              <!-- templates rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Color & Font -->
+        <div class="gen-card">
+          <div class="gen-card-header"><i class="fas fa-paint-brush text-primary"></i> Design</div>
+          <div class="p-4 space-y-3">
+            <div class="gen-field">
+              <label class="gen-label">Primary Color</label>
+              <div class="flex items-center gap-3">
+                <input type="color" id="theme-color" value="#2563EB" class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5" onchange="updateTheme()" />
+                <div class="flex gap-2 flex-wrap">
+                  <button class="color-swatch" style="background:#2563EB" onclick="setColor('#2563EB')" title="Blue"></button>
+                  <button class="color-swatch" style="background:#7C3AED" onclick="setColor('#7C3AED')" title="Purple"></button>
+                  <button class="color-swatch" style="background:#059669" onclick="setColor('#059669')" title="Green"></button>
+                  <button class="color-swatch" style="background:#DC2626" onclick="setColor('#DC2626')" title="Red"></button>
+                  <button class="color-swatch" style="background:#D97706" onclick="setColor('#D97706')" title="Amber"></button>
+                  <button class="color-swatch" style="background:#0891B2" onclick="setColor('#0891B2')" title="Cyan"></button>
+                  <button class="color-swatch" style="background:#1E293B" onclick="setColor('#1E293B')" title="Dark"></button>
+                  <button class="color-swatch" style="background:#BE185D" onclick="setColor('#BE185D')" title="Pink"></button>
+                </div>
+              </div>
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Heading Font</label>
+              <select id="heading-font" class="gen-input" onchange="updateTheme()">
+                <option value="Inter">Inter (Default)</option>
+                <option value="Noto Serif">Noto Serif</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Arial">Arial</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Body Font</label>
+              <select id="body-font" class="gen-input" onchange="updateTheme()">
+                <option value="Inter">Inter (Default)</option>
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Georgia">Georgia</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- PDF Settings -->
+        <div class="gen-card">
+          <div class="gen-card-header"><i class="fas fa-cog text-primary"></i> PDF Settings</div>
+          <div class="p-4 space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="gen-field">
+                <label class="gen-label">Page Size</label>
+                <select id="pdf-pagesize" class="gen-input" onchange="updatePreview()">
+                  <option value="A4">A4</option>
+                  <option value="Letter">Letter</option>
+                  <option value="A5">A5</option>
+                  <option value="Legal">Legal</option>
+                </select>
+              </div>
+              <div class="gen-field">
+                <label class="gen-label">Margin</label>
+                <select id="pdf-margin" class="gen-input" onchange="updatePreview()">
+                  <option value="normal">Normal</option>
+                  <option value="narrow">Narrow</option>
+                  <option value="wide">Wide</option>
+                </select>
+              </div>
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Text Scale</label>
+              <input type="range" id="pdf-scale" min="80" max="120" value="100" class="w-full accent-primary" oninput="document.getElementById('pdf-scale-val').textContent=this.value+'%'; updatePreview()" />
+              <span class="text-xs text-muted" id="pdf-scale-val">100%</span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <label class="text-xs text-muted flex items-center gap-2">
+                <input type="checkbox" id="pdf-landscape" onchange="updatePreview()" class="rounded" />
+                Landscape orientation
+              </label>
+              <label class="text-xs text-muted flex items-center gap-2">
+                <input type="checkbox" id="pdf-pageless" onchange="updatePreview()" class="rounded" />
+                Pageless PDF (no page breaks)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Watermark -->
+        <div class="gen-card">
+          <div class="gen-card-header flex items-center justify-between">
+            <span><i class="fas fa-tint text-primary"></i> Watermark</span>
+            <span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200 font-medium">Free</span>
+          </div>
+          <div class="p-4 space-y-3">
+            <label class="text-xs text-muted flex items-center gap-2">
+              <input type="checkbox" id="watermark-toggle" checked disabled class="rounded" />
+              Show watermark (Free plan)
+              <span class="text-amber-600 font-medium">— <a href="#" onclick="openPricingModal(); return false;" class="underline">Upgrade to remove</a></span>
+            </label>
+            <div class="gen-field">
+              <label class="gen-label">Watermark Text</label>
+              <input type="text" id="watermark-text" value="Invoice2Excel Pro" class="gen-input" onchange="updatePreview()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Letterhead Upload -->
+        <div class="gen-card">
+          <div class="gen-card-header flex items-center justify-between">
+            <span><i class="fas fa-file-image text-primary"></i> Letterhead / Footer</span>
+            <span class="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full border border-yellow-200 font-medium"><i class="fas fa-crown text-xs"></i> Pro</span>
+          </div>
+          <div class="p-4 space-y-3" id="letterhead-section">
+            <div class="gen-field">
+              <label class="gen-label">Header Letterhead (top banner)</label>
+              <div class="border-2 border-dashed border-slate-200 rounded-xl p-3 flex items-center justify-center cursor-pointer hover:border-primary transition-colors opacity-50" onclick="requirePro()">
+                <i class="fas fa-image text-slate-300 text-xl mr-2"></i>
+                <span class="text-xs text-muted">Upload PNG/JPG (Pro only)</span>
+              </div>
+            </div>
+            <div class="gen-field">
+              <label class="gen-label">Footer Image</label>
+              <div class="border-2 border-dashed border-slate-200 rounded-xl p-3 flex items-center justify-center cursor-pointer hover:border-primary transition-colors opacity-50" onclick="requirePro()">
+                <i class="fas fa-image text-slate-300 text-xl mr-2"></i>
+                <span class="text-xs text-muted">Upload footer (Pro only)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Preview -->
+      <div class="lg:col-span-3">
+        <div class="gen-card sticky top-[120px]">
+          <div class="gen-card-header flex items-center justify-between">
+            <span><i class="fas fa-eye text-primary"></i> Live Preview</span>
+            <div class="flex items-center gap-2">
+              <button onclick="updatePreview()" class="text-xs text-primary flex items-center gap-1 hover:text-primary-dark transition-colors">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <span class="text-xs text-muted" id="preview-template-label">Classic Light</span>
+            </div>
+          </div>
+          <!-- Preview frame -->
+          <div class="p-3">
+            <div id="invoice-preview-wrap" class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-inner relative" style="min-height:560px;">
+              <div id="invoice-preview-content" class="text-xs" style="transform-origin:top left;">
+                <!-- rendered by JS -->
+              </div>
+              <!-- Watermark overlay -->
+              <div id="preview-watermark" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 rotate-[-35deg]">
+                <span class="text-3xl font-black text-slate-400 whitespace-nowrap" id="wm-text-preview">Invoice2Excel Pro</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="p-4 border-t border-slate-100 space-y-3">
+            <button onclick="downloadPDF()" class="w-full gen-btn-primary py-3.5 flex items-center justify-center gap-2 text-base">
+              <i class="fas fa-file-pdf text-lg"></i> Download PDF
+            </button>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="shareWhatsApp()" class="gen-btn-secondary text-xs flex items-center justify-center gap-1.5 py-2.5">
+                <i class="fab fa-whatsapp text-green-600"></i> WhatsApp
+              </button>
+              <button onclick="shareEmail()" class="gen-btn-secondary text-xs flex items-center justify-center gap-1.5 py-2.5">
+                <i class="fas fa-envelope text-blue-500"></i> Email
+              </button>
+              <button onclick="printInvoice()" class="gen-btn-secondary text-xs flex items-center justify-center gap-1.5 py-2.5">
+                <i class="fas fa-print text-slate-500"></i> Print
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="saveInvoice()" class="gen-btn-secondary text-xs flex items-center justify-center gap-1.5 py-2.5">
+                <i class="fas fa-save text-primary"></i> Save Invoice
+              </button>
+              <button onclick="duplicateInvoice()" class="gen-btn-secondary text-xs flex items-center justify-center gap-1.5 py-2.5">
+                <i class="fas fa-copy text-muted"></i> Duplicate
+              </button>
+            </div>
+            <!-- Placeholder buttons -->
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="showToastGen('E-Way Bill generation coming soon!','info')" class="text-xs border border-dashed border-slate-300 text-muted py-2.5 rounded-xl hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-1.5">
+                <i class="fas fa-route"></i> E-Way Bill
+              </button>
+              <button onclick="showToastGen('Payment recording coming soon!','info')" class="text-xs border border-dashed border-slate-300 text-muted py-2.5 rounded-xl hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-1.5">
+                <i class="fas fa-money-bill-wave"></i> Record Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 back button -->
+    <div class="flex items-center mt-4">
+      <button onclick="goToStep(2)" class="gen-btn-secondary px-6">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Bank Details
+      </button>
+    </div>
+  </div>
+</div><!-- end main -->
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div id="gen-toast-container" class="fixed top-16 right-4 z-[70] flex flex-col gap-2 pointer-events-none"></div>
+
+<!-- ===== PRICING MODAL ===== -->
+<div id="gen-pricing-modal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4" onclick="if(event.target===this)closePricingModal()">
+  <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-modal-in">
+    <div class="bg-gradient-to-br from-primary to-blue-700 p-6 text-white text-center">
+      <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+        <i class="fas fa-crown text-yellow-300 text-2xl"></i>
+      </div>
+      <h3 class="font-extrabold text-xl mb-1">Upgrade to Pro</h3>
+      <p class="text-blue-100 text-sm">Unlimited invoices, no watermark</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+          <p class="text-xs font-bold text-muted mb-2 text-center">FREE</p>
+          <ul class="space-y-1.5 text-xs text-muted">
+            <li><i class="fas fa-check text-green-500 mr-1.5"></i>2 templates</li>
+            <li><i class="fas fa-check text-green-500 mr-1.5"></i>Basic features</li>
+            <li><i class="fas fa-times text-red-400 mr-1.5"></i>Watermark</li>
+            <li><i class="fas fa-times text-red-400 mr-1.5"></i>No letterhead</li>
+          </ul>
+        </div>
+        <div class="bg-primary/5 rounded-xl p-3 border-2 border-primary">
+          <p class="text-xs font-bold text-primary mb-2 text-center">PRO ✨</p>
+          <ul class="space-y-1.5 text-xs text-ink">
+            <li><i class="fas fa-check text-green-500 mr-1.5"></i>All 7 templates</li>
+            <li><i class="fas fa-check text-green-500 mr-1.5"></i>No watermark</li>
+            <li><i class="fas fa-check text-green-500 mr-1.5"></i>Letterhead/footer</li>
+            <li><i class="fas fa-check text-green-500 mr-1.5"></i>Save history</li>
+          </ul>
+        </div>
+      </div>
+      <div class="text-center mb-4">
+        <p class="text-3xl font-extrabold text-ink">$3<span class="text-base font-medium text-muted">/month</span></p>
+        <p class="text-xs text-muted">Cancel anytime</p>
+      </div>
+      <button onclick="closePricingModal()" class="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-bold py-3 rounded-xl mb-2 hover:shadow-md transition-all">
+        <i class="fas fa-crown mr-2"></i>Upgrade Now
+      </button>
+      <button onclick="closePricingModal()" class="w-full text-muted text-sm py-2 hover:text-ink transition-colors">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AUTH MODAL (before download) ===== -->
+<div id="gen-auth-modal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4" onclick="if(event.target===this)document.getElementById('gen-auth-modal').classList.add('hidden')">
+  <div class="bg-white rounded-3xl w-full max-w-xs shadow-2xl p-6 text-center animate-modal-in">
+    <div class="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-file-invoice text-primary text-3xl"></i>
+    </div>
+    <h3 class="font-bold text-lg mb-1">One last step</h3>
+    <p class="text-muted text-xs mb-5">Sign in to download your invoice (or continue as guest)</p>
+    <button onclick="authAndDownload('google')" class="w-full flex items-center justify-center gap-3 border-2 border-slate-200 rounded-xl py-3 hover:bg-slate-50 transition-colors mb-3 font-semibold text-sm">
+      <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C34 32 29.5 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.4 7.1 28.9 5 24 5 13 5 4 14 4 24s9 19 20 19 20-9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16.1 19 13 24 13c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.4 7.1 28.9 5 24 5 16.3 5 9.7 9.2 6.3 14.7z"/><path fill="#4CAF50" d="M24 43c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.5 34.2 26.9 35 24 35c-5.5 0-10-3-11.3-7.5L6 32.3C9.4 38.7 16.2 43 24 43z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 3.5-4.6 6-11.3 6h0l6.2 5.2C33.8 39.7 44 33 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
+      Continue with Google
+    </button>
+    <button onclick="authAndDownload('guest')" class="w-full bg-slate-100 text-ink font-semibold py-3 rounded-xl hover:bg-slate-200 transition-colors text-sm mb-2">
+      <i class="fas fa-user-secret mr-2 text-muted"></i>Download as Guest
+    </button>
+    <button onclick="document.getElementById('gen-auth-modal').classList.add('hidden')" class="text-xs text-muted hover:text-ink transition-colors">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="templates.js"></script>
+<script src="ui-shell.js"></script>
+<script src="generator-step1.js"></script>
+<script src="generator-step2.js"></script>
+<script src="generator-step3.js"></script>
+
+</body>
+</html>

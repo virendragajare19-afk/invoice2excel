@@ -1,0 +1,188 @@
+/* Basic Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+.container {
+    max-width: 5xl;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+}
+
+.tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-button.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Upload Box */
+.upload-box {
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.75rem;
+    padding: 2.5rem;
+    text-align: center;
+    background-color: #ffffff;
+    transition: all 0.2s;
+}
+
+.upload-box.highlight {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+}
+
+.upload-box p {
+    margin-bottom: 1rem;
+    color: #64748b;
+}
+
+.upload-box button {
+    background-color: #2563eb;
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.upload-box button:hover {
+    background-color: #1d4ed8;
+}
+
+/* Preview Area */
+.preview-area {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f1f5f9;
+    border-radius: 0.5rem;
+    color: #1e293b;
+}
+
+/* Data Preview Screen */
+.data-preview-screen {
+    margin-top: 2rem;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.data-preview-screen h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+}
+
+.invoice-details p {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.invoice-details span[contenteditable="true"] {
+    border-bottom: 1px dashed #cbd5e1;
+    padding-bottom: 2px;
+    cursor: text;
+    display: inline-block;
+    min-width: 50px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+}
+
+.data-table th,
+.data-table td {
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: #475569;
+}
+
+.data-table tbody td[contenteditable="true"] {
+    background-color: #ffffff;
+    cursor: text;
+}
+
+.data-table tfoot td {
+    font-weight: 700;
+    background-color: #f1f5f9;
+}
+
+.export-options {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.export-options button {
+    background-color: #10b981;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.export-options button:hover {
+    background-color: #059669;
+}
+
+.privacy-message {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    color: #64748b;
+    text-align: center;
+}
+
+button {
+    cursor: pointer;
+}

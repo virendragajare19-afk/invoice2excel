@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signing in… — Invoice2Excel Pro</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Crect x='8' y='4' width='14' height='18' rx='2' fill='white' opacity='.95'/%3E%3Crect x='10' y='9' width='10' height='3' rx='1' fill='%2310B981'/%3E%3C/svg%3E" />
+
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.12);
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+    }
+    .logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #2563EB, #1D4ED8);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(37,99,235,.35);
+    }
+    .logo svg { width: 32px; height: 32px; }
+    h1 { font-size: 1.25rem; font-weight: 700; color: #1E293B; margin-bottom: 8px; }
+    p  { font-size: .9rem; color: #64748B; margin-bottom: 24px; }
+
+    /* Spinner */
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid #DBEAFE;
+      border-top-color: #2563EB;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success state */
+    .check { display: none; }
+    .check-circle {
+      width: 64px; height: 64px;
+      background: #D1FAE5;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .check-circle svg { width: 32px; height: 32px; color: #059669; }
+
+    /* Error state */
+    .error-box {
+      display: none;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 12px;
+      padding: 16px;
+      color: #DC2626;
+      font-size: .85rem;
+      margin-bottom: 16px;
+    }
+    .btn {
+      display: inline-block;
+      background: #2563EB;
+      color: white;
+      font-weight: 600;
+      font-size: .9rem;
+      padding: 12px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .btn:hover { background: #1D4ED8; }
+    .btn-outline {
+      background: transparent;
+      color: #2563EB;
+      border: 1.5px solid #2563EB;
+      margin-left: 8px;
+    }
+    .progress-bar {
+      width: 100%; height: 4px;
+      background: #EFF6FF;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2563EB, #10B981);
+      border-radius: 4px;
+      animation: progress 2s ease-out forwards;
+    }
+    @keyframes progress { from { width: 0% } to { width: 100% } }
+    .redirect-note { font-size: .78rem; color: #94A3B8; margin-top: 12px; }
+  </style>
+</head>
+<body>
+
+<div class="card" id="main-card">
+  <!-- Logo -->
+  <div class="logo">
+    <svg viewBox="0 0 32 32" fill="none">
+      <rect x="4" y="2" width="16" height="20" rx="2" fill="white" opacity=".95"/>
+      <rect x="6" y="7" width="12" height="3" rx="1" fill="#10B981"/>
+      <rect x="6" y="11" width="9" height="2" rx="1" fill="#6EE7B7"/>
+      <rect x="6" y="14" width="10" height="2" rx="1" fill="#6EE7B7"/>
+      <circle cx="24" cy="26" r="6" fill="#10B981"/>
+      <path d="M24 22v7M21 26l3 3 3-3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loading-state">
+    <div class="spinner"></div>
+    <h1>Signing you in…</h1>
+    <p id="status-msg">Verifying your Google account</p>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <p class="redirect-note">You'll be redirected automatically</p>
+  </div>
+
+  <!-- Success state -->
+  <div id="success-state" style="display:none">
+    <div class="check-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h1>Welcome back! 🎉</h1>
+    <p id="welcome-msg">You're signed in successfully.</p>
+    <div style="margin-top:20px">
+      <a id="goto-dashboard" href="dashboard.html" class="btn">View My Invoices</a>
+      <a href="index.html" class="btn btn-outline">Home</a>
+    </div>
+    <p class="redirect-note" id="redirect-countdown">Redirecting in <span id="count">3</span>s…</p>
+  </div>
+
+  <!-- Error state -->
+  <div id="error-state" style="display:none">
+    <h1 style="color:#DC2626;margin-bottom:8px">Sign in failed</h1>
+    <div class="error-box" id="error-box" style="display:block"></div>
+    <a href="index.html" class="btn" style="margin-top:8px">← Back to Home</a>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   AUTH CALLBACK HANDLER
+   Supabase redirects here after Google OAuth with tokens in URL hash
+   ================================================================ */
+
+const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
+
+(async () => {
+  try {
+    // Check if Supabase SDK is available
+    if (typeof window.supabase === 'undefined') {
+      throw new Error('Supabase SDK failed to load. Check your internet connection.');
+    }
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storageKey: 'inv2xl_sb_session',
+      }
+    });
+
+    setStatus('Processing your sign in…');
+
+    // Supabase auto-detects the token from the URL fragment (#access_token=...)
+    const { data: { session }, error } = await sb.auth.getSession();
+
+    if (error) throw error;
+
+    if (!session) {
+      // Exchange the code/hash if session not immediately available
+      // This happens on PKCE flow
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const searchParams = new URLSearchParams(window.location.search);
+      const code = searchParams.get('code');
+
+      if (code) {
+        setStatus('Exchanging authorization code…');
+        const { data, error: exchErr } = await sb.auth.exchangeCodeForSession(code);
+        if (exchErr) throw exchErr;
+        if (data.session) {
+          await handleSignedIn(sb, data.session);
+          return;
+        }
+      }
+
+      // Check for error in URL
+      const errMsg = hashParams.get('error_description') || searchParams.get('error_description');
+      if (errMsg) throw new Error(decodeURIComponent(errMsg));
+
+      throw new Error('No session found. The link may have expired. Please try signing in again.');
+    }
+
+    await handleSignedIn(sb, session);
+
+  } catch (err) {
+    console.error('[AuthCallback] Error:', err);
+    showError(err.message || 'Authentication failed. Please try again.');
+  }
+})();
+
+async function handleSignedIn(sb, session) {
+  const user = session.user;
+  setStatus('Fetching your profile…');
+
+  // Try to fetch profile
+  const { data: profile } = await sb
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  // Build local user object
+  const userObj = {
+    id:        user.id,
+    email:     user.email,
+    name:      profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+    avatar:    profile?.avatar_url || user.user_metadata?.avatar_url || null,
+    provider:  user.app_metadata?.provider || 'google',
+    isPremium: profile?.is_premium || false,
+    plan:      profile?.plan || 'free',
+    supabase:  true,
+  };
+
+  // Persist to localStorage for other pages
+  localStorage.setItem('inv2xl_user', JSON.stringify(userObj));
+  localStorage.setItem('inv2xl_premium', userObj.isPremium ? 'true' : 'false');
+
+  // Determine where to redirect
+  const returnTo = sessionStorage.getItem('auth_return_to') || 'index.html';
+  sessionStorage.removeItem('auth_return_to');
+
+  // Show success UI
+  showSuccess(userObj, returnTo);
+}
+
+function setStatus(msg) {
+  const el = document.getElementById('status-msg');
+  if (el) el.textContent = msg;
+}
+
+function showSuccess(user, returnTo) {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('success-state').style.display = 'block';
+
+  const welcomeEl = document.getElementById('welcome-msg');
+  if (welcomeEl) welcomeEl.textContent = `Welcome, ${user.name}! Your account is ready.`;
+
+  const dashLink = document.getElementById('goto-dashboard');
+  if (dashLink) dashLink.href = 'dashboard.html';
+
+  // Countdown redirect
+  let secs = 3;
+  const countEl = document.getElementById('count');
+  const tick = setInterval(() => {
+    secs--;
+    if (countEl) countEl.textContent = secs;
+    if (secs <= 0) {
+      clearInterval(tick);
+      window.location.href = returnTo;
+    }
+  }, 1000);
+}
+
+function showError(msg) {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('error-state').style.display  = 'block';
+  const box = document.getElementById('error-box');
+  if (box) box.textContent = msg;
+}
+</script>
+</body>
+</html>

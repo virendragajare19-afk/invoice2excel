@@ -1,0 +1,20 @@
+{
+  "name": "code_sandbox_light_0b5a98fd_1774960156",
+  "version": "1.0.0",
+  "description": "A full-featured, mobile-first Progressive Web App (PWA) that: - Converts invoice PDFs → Excel (`.xlsx`) using pdf.js + SheetJS - Creates professional GST invoices (3-step generator, 7 templates) - Authenticates users via **real Google OAuth** (Supabase) or email/password - Persists invoices & drafts to **Supabase Postgres** (with localStorage fallback) - Works fully offline via Service Worker caching",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "pdf-parse": "^2.4.5",
+    "tesseract.js": "^7.0.0"
+  }
+}

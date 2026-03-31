@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>My Invoices — Invoice2Excel Pro</title>
+  <meta name="description" content="View and manage all your invoices — Invoice2Excel Pro Dashboard." />
+  <meta name="theme-color" content="#2563EB" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Crect x='8' y='4' width='14' height='18' rx='2' fill='white' opacity='.95'/%3E%3Crect x='10' y='9' width='10' height='3' rx='1' fill='%2310B981'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8', light: '#3B82F6', lighter: '#DBEAFE' },
+            success: '#10B981', warning: '#F59E0B', danger: '#EF4444',
+            surface: '#F8FAFC', card: '#FFFFFF', ink: '#1E293B', muted: '#64748B'
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .invoice-card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+      padding: 16px;
+      transition: all .2s;
+      cursor: pointer;
+    }
+    .invoice-card:hover {
+      border-color: #2563EB;
+      box-shadow: 0 4px 20px rgba(37,99,235,.1);
+      transform: translateY(-2px);
+    }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .7rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px;
+    }
+    .status-saved      { background: #EFF6FF; color: #2563EB; }
+    .status-draft      { background: #FEF3C7; color: #D97706; }
+    .status-downloaded { background: #ECFDF5; color: #059669; }
+    .stat-card {
+      background: white; border: 1px solid #E2E8F0;
+      border-radius: 16px; padding: 20px;
+    }
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+    }
+    .empty-state-icon {
+      width: 80px; height: 80px;
+      background: #EFF6FF; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-in { animation: fadeIn .3s ease both; }
+
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body class="bg-surface font-sans text-ink min-h-screen" data-page="invoices">
+
+<!-- ===== HEADER ===== -->
+<header class="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-100">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <div class="w-9 h-9 bg-gradient-to-br from-primary to-blue-700 rounded-xl flex items-center justify-center shadow-md">
+          <i class="fas fa-file-excel text-white text-base"></i>
+        </div>
+        <div>
+          <span class="font-bold text-ink text-base leading-none block">Invoice2Excel</span>
+          <span class="text-xs text-primary font-semibold leading-none">PRO</span>
+        </div>
+      </a>
+      <div class="hidden sm:flex items-center gap-1 text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div>
+      <span class="hidden sm:block text-sm font-semibold text-ink">My Invoices</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <!-- User avatar -->
+      <div id="dash-user-wrap" class="hidden items-center gap-2 mr-1">
+        <div id="dash-user-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-primary flex items-center justify-center text-white text-xs font-bold overflow-hidden"></div>
+        <span id="dash-user-name" class="hidden sm:block text-sm font-medium text-ink max-w-[120px] truncate"></span>
+      </div>
+
+        <a href="invoice-generator.html" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow hover:shadow-md transition-all flex items-center gap-1.5">
+          <i class="fas fa-plus text-xs"></i><span>New Invoice</span>
+        </a>
+        <a href="invoice-converter.html" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow hover:shadow-md transition-all flex items-center gap-1.5">
+          <i class="fas fa-file-import text-xs"></i><span>Convert Invoice</span>
+        </a>
+      <button id="dash-signout-btn" class="hidden text-xs text-muted hover:text-ink border border-slate-200 px-3 py-2 rounded-lg transition-colors" onclick="dashSignOut()">
+        <i class="fas fa-sign-out-alt mr-1"></i>Sign Out
+      </button>
+      <a href="index.html" id="dash-signin-link" class="hidden text-xs text-primary border border-primary/30 px-3 py-2 rounded-lg transition-colors">
+        <i class="fas fa-sign-in-alt mr-1"></i>Sign In
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="max-w-5xl mx-auto px-4 py-6 pb-20">
+
+  <!-- ===== NOT SIGNED IN STATE ===== -->
+  <div id="not-signed-in" class="hidden">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 md:p-12 text-center max-w-md mx-auto mt-8">
+      <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-5">
+        <i class="fas fa-user-circle text-primary text-4xl"></i>
+      </div>
+      <h2 class="text-xl font-extrabold text-ink mb-2">Sign in to view your invoices</h2>
+      <p class="text-muted text-sm mb-6">Your invoices are saved securely in the cloud. Sign in with Google or email to access them from any device.</p>
+      <a href="index.html" class="inline-flex items-center gap-2 bg-primary text-white font-bold px-6 py-3 rounded-xl hover:bg-primary-dark transition-colors text-sm">
+        <i class="fas fa-sign-in-alt"></i> Sign In / Create Account
+      </a>
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <p class="text-xs text-muted mb-2">Or browse local invoices saved on this device:</p>
+        <button onclick="loadLocalInvoices()" class="text-xs text-primary underline">Load from this device</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SIGNED IN CONTENT ===== -->
+  <div id="signed-in-content" class="hidden">
+
+    <!-- Welcome bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <div>
+        <h1 class="text-xl font-extrabold text-ink" id="dash-greeting">My Invoices</h1>
+        <p class="text-sm text-muted" id="dash-subtitle">Loading your invoices…</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="refreshInvoices()" class="text-xs border border-slate-200 text-muted hover:text-ink px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <a href="invoice-generator.html" class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-1.5">
+          <i class="fas fa-plus"></i> New Invoice
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" id="stats-row">
+      <div class="stat-card">
+        <p class="text-2xl font-extrabold text-ink mb-0.5" id="stat-total">—</p>
+        <p class="text-xs text-muted">Total Invoices</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-2xl font-extrabold text-success mb-0.5" id="stat-saved">—</p>
+        <p class="text-xs text-muted">Saved</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-2xl font-extrabold text-warning mb-0.5" id="stat-draft">—</p>
+        <p class="text-xs text-muted">Drafts</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-2xl font-extrabold text-primary mb-0.5" id="stat-amount">—</p>
+        <p class="text-xs text-muted">Total Value</p>
+      </div>
+    </div>
+
+    <!-- Search & filter bar -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-3 flex flex-col sm:flex-row gap-3 mb-4">
+      <div class="relative flex-1">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm"></i>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search by invoice # or client name…"
+          class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30"
+          oninput="filterInvoices()"
+        />
+      </div>
+      <div class="flex gap-2">
+        <select id="filter-status" onchange="filterInvoices()" class="text-xs border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-muted">
+          <option value="">All Status</option>
+          <option value="saved">Saved</option>
+          <option value="draft">Draft</option>
+          <option value="downloaded">Downloaded</option>
+        </select>
+        <select id="filter-sort" onchange="filterInvoices()" class="text-xs border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-muted">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="amount-high">Amount ↓</option>
+          <option value="amount-low">Amount ↑</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Invoice list -->
+    <div id="invoice-list" class="space-y-3">
+      <!-- Skeleton loaders -->
+      <div class="invoice-card pointer-events-none">
+        <div class="flex items-center justify-between mb-2">
+          <div class="skeleton h-5 w-32"></div>
+          <div class="skeleton h-5 w-16"></div>
+        </div>
+        <div class="skeleton h-4 w-48 mb-1"></div>
+        <div class="skeleton h-4 w-24"></div>
+      </div>
+      <div class="invoice-card pointer-events-none" style="animation-delay:.1s">
+        <div class="flex items-center justify-between mb-2">
+          <div class="skeleton h-5 w-40"></div>
+          <div class="skeleton h-5 w-20"></div>
+        </div>
+        <div class="skeleton h-4 w-36 mb-1"></div>
+        <div class="skeleton h-4 w-28"></div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex items-center justify-center gap-3 mt-6 hidden">
+      <button id="page-prev" onclick="changePage(-1)" class="text-xs border border-slate-200 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-40" disabled>
+        <i class="fas fa-chevron-left mr-1"></i> Prev
+      </button>
+      <span class="text-xs text-muted" id="page-info">Page 1 of 1</span>
+      <button id="page-next" onclick="changePage(1)" class="text-xs border border-slate-200 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-40">
+        Next <i class="fas fa-chevron-right ml-1"></i>
+      </button>
+    </div>
+
+  </div><!-- /signed-in-content -->
+
+</main>
+
+<!-- ===== INVOICE DETAIL MODAL ===== -->
+<div id="invoice-detail-modal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4" onclick="if(event.target===this)closeDetailModal()">
+  <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+      <h3 class="font-bold text-lg text-ink" id="detail-title">Invoice #INV-001</h3>
+      <button onclick="closeDetailModal()" class="text-muted hover:text-ink p-2 rounded-lg hover:bg-slate-100 transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="overflow-y-auto flex-1 p-5" id="detail-body">
+      <!-- populated by JS -->
+    </div>
+    <div class="p-4 border-t border-slate-100 flex gap-2 flex-shrink-0">
+      <button id="detail-edit-btn" onclick="editInvoice()" class="flex-1 bg-primary text-white font-semibold py-2.5 rounded-xl text-sm hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+        <i class="fas fa-edit"></i> Open & Edit
+      </button>
+      <button id="detail-delete-btn" onclick="confirmDeleteInvoice()" class="bg-red-50 text-danger border border-red-200 font-semibold py-2.5 px-4 rounded-xl text-sm hover:bg-red-100 transition-colors flex items-center gap-2">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="dash-toast-container" class="fixed top-16 right-4 z-[70] flex flex-col gap-2 pointer-events-none"></div>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase.js"></script>
+<script src="ui-shell.js"></script>
+<script>
+/* ================================================================
+   DASHBOARD — Invoice History
+   Pulls from Supabase (signed-in) or localStorage (guest/local)
+   ================================================================ */
+
+'use strict';
+
+let DB_INVOICES = [];     // full list from source
+let FILTERED    = [];     // after search/filter
+let CURRENT_PAGE = 1;
+const PER_PAGE   = 10;
+let SELECTED_INV = null;  // currently viewed invoice
+
+/* ---- Init ---- */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Wait a moment for supabase.js to restore session
+  await new Promise(r => setTimeout(r, 400));
+  initDashboard();
+});
+
+async function initDashboard() {
+  const user = await getCurrentUser().catch(() => null)
+             || JSON.parse(localStorage.getItem('inv2xl_user') || 'null');
+
+  if (user) {
+    showSignedInView(user);
+    await loadInvoices(user);
+  } else {
+    showNotSignedIn();
+  }
+}
+
+function showSignedInView(user) {
+  document.getElementById('not-signed-in').classList.add('hidden');
+  document.getElementById('signed-in-content').classList.remove('hidden');
+
+  // Header avatar
+  const wrap   = document.getElementById('dash-user-wrap');
+  const avatar = document.getElementById('dash-user-avatar');
+  const name   = document.getElementById('dash-user-name');
+  if (wrap) wrap.classList.remove('hidden'), wrap.classList.add('flex');
+
+  if (avatar) {
+    if (user.avatar) {
+      avatar.innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover" alt="${user.name||''}" onerror="this.parentElement.textContent='${(user.name||'U').charAt(0).toUpperCase()}'" />`;
+    } else {
+      avatar.textContent = (user.name || 'U').charAt(0).toUpperCase();
+    }
+  }
+  if (name) name.textContent = user.name || user.email || 'User';
+
+  // Show sign out
+  const soBtn = document.getElementById('dash-signout-btn');
+  if (soBtn) soBtn.classList.remove('hidden');
+
+  // Greeting
+  const greet = document.getElementById('dash-greeting');
+  if (greet) greet.textContent = `Hello, ${(user.name || 'there').split(' ')[0]} 👋`;
+}
+
+function showNotSignedIn() {
+  document.getElementById('not-signed-in').classList.remove('hidden');
+  document.getElementById('signed-in-content').classList.add('hidden');
+
+  const signinLink = document.getElementById('dash-signin-link');
+  if (signinLink) signinLink.classList.remove('hidden');
+}
+
+/* ---- Load invoices ---- */
+async function loadInvoices(user) {
+  setSubtitle('Loading your invoices…');
+
+  try {
+    let result = { data: [], total: 0 };
+
+    if (user && user.supabase !== false && typeof getInvoices === 'function') {
+      // Load from Supabase
+      result = await getInvoices(1, 200);
+      DB_INVOICES = result.data || [];
+    } else {
+      // Load from localStorage
+      loadLocalInvoices();
+      return;
+    }
+
+    if (DB_INVOICES.length === 0) {
+      // Check localStorage as secondary source
+      const local = JSON.parse(localStorage.getItem('inv2xl_history') || '[]');
+      if (local.length > 0) {
+        DB_INVOICES = local.map(normLocal);
+      }
+    }
+
+    applyFiltersAndRender();
+    updateStats();
+    setSubtitle(`${DB_INVOICES.length} invoice${DB_INVOICES.length !== 1 ? 's' : ''} found`);
+
+  } catch (err) {
+    console.error('[Dashboard] load error:', err);
+    loadLocalInvoices();
+  }
+}
+
+function loadLocalInvoices() {
+  const local = JSON.parse(localStorage.getItem('inv2xl_history') || '[]');
+  const drafts = [];
+  try {
+    const draftRaw = localStorage.getItem('inv2xl_gen_draft');
+    if (draftRaw) {
+      const d = JSON.parse(draftRaw);
+      d.status = 'draft';
+      d._localId = 'draft_' + Date.now();
+      drafts.push(normLocal(d));
+    }
+  } catch(e) {}
+
+  DB_INVOICES = [...drafts, ...local.map(normLocal)];
+
+  document.getElementById('signed-in-content').classList.remove('hidden');
+  document.getElementById('not-signed-in').classList.add('hidden');
+  applyFiltersAndRender();
+  updateStats();
+  setSubtitle(`${DB_INVOICES.length} local invoice${DB_INVOICES.length !== 1 ? 's' : ''}`);
+}
+
+/* Normalise a localStorage invoice to match Supabase row shape */
+function normLocal(inv) {
+  return {
+    id:             inv._localId || inv._dbId || Date.now().toString(),
+    invoice_number: inv.invoiceNumber || inv.invoice_number || '—',
+    invoice_date:   inv.invoiceDate || inv.invoice_date || '',
+    due_date:       inv.dueDate || inv.due_date || '',
+    vendor_name:    inv.business?.name || inv.vendor_name || '',
+    client_name:    inv.client?.name || inv.client_name || '',
+    grand_total:    parseFloat(inv.totals?.grandTotal || inv.grand_total || 0),
+    currency:       inv.currency || '₹',
+    status:         inv.status || 'saved',
+    template_id:    inv.templateId || inv.template_id || 1,
+    created_at:     inv.savedAt || inv.created_at || new Date().toISOString(),
+    data:           inv,
+    _local:         true,
+  };
+}
+
+/* ---- Filters & render ---- */
+function applyFiltersAndRender() {
+  const q      = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const status = document.getElementById('filter-status')?.value || '';
+  const sort   = document.getElementById('filter-sort')?.value || 'newest';
+
+  FILTERED = DB_INVOICES.filter(inv => {
+    const matchQ = !q ||
+      (inv.invoice_number || '').toLowerCase().includes(q) ||
+      (inv.client_name   || '').toLowerCase().includes(q) ||
+      (inv.vendor_name   || '').toLowerCase().includes(q);
+    const matchS = !status || inv.status === status;
+    return matchQ && matchS;
+  });
+
+  // Sort
+  FILTERED.sort((a, b) => {
+    if (sort === 'newest')      return new Date(b.created_at) - new Date(a.created_at);
+    if (sort === 'oldest')      return new Date(a.created_at) - new Date(b.created_at);
+    if (sort === 'amount-high') return b.grand_total - a.grand_total;
+    if (sort === 'amount-low')  return a.grand_total - b.grand_total;
+    return 0;
+  });
+
+  CURRENT_PAGE = 1;
+  renderPage();
+}
+
+function filterInvoices() {
+  applyFiltersAndRender();
+}
+
+function renderPage() {
+  const list = document.getElementById('invoice-list');
+  const start = (CURRENT_PAGE - 1) * PER_PAGE;
+  const page  = FILTERED.slice(start, start + PER_PAGE);
+  const total = FILTERED.length;
+  const pages = Math.ceil(total / PER_PAGE) || 1;
+
+  if (page.length === 0) {
+    list.innerHTML = renderEmptyState();
+    document.getElementById('pagination').classList.add('hidden');
+    return;
+  }
+
+  list.innerHTML = page.map((inv, i) => renderInvoiceCard(inv, i)).join('');
+
+  // Pagination
+  const pg = document.getElementById('pagination');
+  const info = document.getElementById('page-info');
+  const prev = document.getElementById('page-prev');
+  const next = document.getElementById('page-next');
+  pg.classList.toggle('hidden', pages <= 1);
+  if (info) info.textContent = `Page ${CURRENT_PAGE} of ${pages}`;
+  if (prev) prev.disabled = CURRENT_PAGE <= 1;
+  if (next) next.disabled = CURRENT_PAGE >= pages;
+}
+
+function changePage(dir) {
+  const pages = Math.ceil(FILTERED.length / PER_PAGE) || 1;
+  CURRENT_PAGE = Math.max(1, Math.min(pages, CURRENT_PAGE + dir));
+  renderPage();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderEmptyState() {
+  const hasFilters = (document.getElementById('search-input')?.value || '') || document.getElementById('filter-status')?.value;
+  return `
+    <div class="empty-state anim-in">
+      <div class="empty-state-icon">
+        <i class="fas fa-file-invoice text-primary text-3xl"></i>
+      </div>
+      <h3 class="font-bold text-ink text-lg mb-2">${hasFilters ? 'No results found' : 'No invoices yet'}</h3>
+      <p class="text-muted text-sm mb-6">${hasFilters ? 'Try adjusting your search or filters.' : 'Create your first invoice and it will appear here.'}</p>
+      ${!hasFilters ? `<a href="invoice-generator.html" class="inline-flex items-center gap-2 bg-primary text-white font-bold px-6 py-3 rounded-xl text-sm hover:bg-primary-dark transition-colors">
+        <i class="fas fa-plus"></i> Create Invoice
+      </a>` : `<button onclick="document.getElementById('search-input').value=''; document.getElementById('filter-status').value=''; filterInvoices()" class="text-xs text-primary underline">Clear filters</button>`}
+    </div>
+  `;
+}
+
+function renderInvoiceCard(inv, index) {
+  const date   = inv.invoice_date ? formatDate(inv.invoice_date) : '—';
+  const amount = inv.grand_total > 0 ? (inv.currency || '₹') + formatNum(inv.grand_total) : '—';
+  const tmpl   = ['', 'Classic', 'Dark', 'Blue', 'Green', 'Purple', 'Minimal', 'Modern'][inv.template_id] || 'Classic';
+
+  const statusClass = { saved: 'status-saved', draft: 'status-draft', downloaded: 'status-downloaded' }[inv.status] || 'status-saved';
+  const statusLabel = { saved: '● Saved', draft: '● Draft', downloaded: '✓ Downloaded' }[inv.status] || inv.status;
+
+  return `
+    <div class="invoice-card anim-in" style="animation-delay:${index * 0.05}s" onclick="openDetailModal('${inv.id}')">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="font-bold text-ink text-sm">${escHtml(inv.invoice_number || '—')}</span>
+            <span class="status-badge ${statusClass}">${statusLabel}</span>
+          </div>
+          <p class="text-muted text-xs mb-0.5 truncate">
+            <i class="fas fa-user text-slate-300 mr-1"></i>${escHtml(inv.client_name || 'No client')}
+          </p>
+          <p class="text-xs text-slate-400">
+            <i class="fas fa-calendar text-slate-300 mr-1"></i>${date}
+            ${inv.vendor_name ? `· <i class="fas fa-building text-slate-300 mr-1"></i>${escHtml(inv.vendor_name)}` : ''}
+          </p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-extrabold text-ink text-base">${amount}</p>
+          <p class="text-xs text-slate-400">${tmpl}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---- Stats ---- */
+function updateStats() {
+  const total  = DB_INVOICES.length;
+  const saved  = DB_INVOICES.filter(i => i.status === 'saved' || i.status === 'downloaded').length;
+  const draft  = DB_INVOICES.filter(i => i.status === 'draft').length;
+  const value  = DB_INVOICES.reduce((s, i) => s + (i.grand_total || 0), 0);
+  const cur    = DB_INVOICES[0]?.currency || '₹';
+
+  setEl('stat-total',  total);
+  setEl('stat-saved',  saved);
+  setEl('stat-draft',  draft);
+  setEl('stat-amount', cur + formatNum(value));
+}
+
+/* ---- Invoice detail modal ---- */
+function openDetailModal(id) {
+  SELECTED_INV = FILTERED.find(i => i.id == id) || DB_INVOICES.find(i => i.id == id);
+  if (!SELECTED_INV) return;
+
+  const inv = SELECTED_INV;
+  const data = inv.data || inv;
+
+  document.getElementById('detail-title').textContent = `Invoice #${inv.invoice_number || '—'}`;
+
+  const items = (data.items || []).slice(0, 5);
+  const showMore = (data.items || []).length > 5;
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="space-y-4">
+      <!-- Meta -->
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="bg-slate-50 rounded-xl p-3">
+          <p class="text-xs text-muted mb-1">Invoice Date</p>
+          <p class="font-semibold text-ink">${formatDate(inv.invoice_date) || '—'}</p>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3">
+          <p class="text-xs text-muted mb-1">Due Date</p>
+          <p class="font-semibold text-ink">${formatDate(inv.due_date) || 'On receipt'}</p>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3">
+          <p class="text-xs text-muted mb-1">From</p>
+          <p class="font-semibold text-ink truncate">${escHtml(inv.vendor_name || data.business?.name || '—')}</p>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3">
+          <p class="text-xs text-muted mb-1">To</p>
+          <p class="font-semibold text-ink truncate">${escHtml(inv.client_name || '—')}</p>
+        </div>
+      </div>
+
+      <!-- Items preview -->
+      ${items.length > 0 ? `
+      <div>
+        <p class="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Line Items</p>
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <table class="w-full text-xs">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="text-left p-2 text-muted font-medium">Description</th>
+                <th class="text-right p-2 text-muted font-medium">Qty</th>
+                <th class="text-right p-2 text-muted font-medium">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(it => `<tr class="border-t border-slate-100">
+                <td class="p-2 text-ink">${escHtml(it.name || it.description || '—')}</td>
+                <td class="p-2 text-right text-muted">${it.qty || it.quantity || 1}</td>
+                <td class="p-2 text-right font-semibold">${inv.currency || '₹'}${formatNum(it.total || it.amount || ((it.qty||1)*(it.rate||it.unitPrice||0)))}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        ${showMore ? `<p class="text-xs text-muted mt-1 text-center">+ ${(data.items||[]).length - 5} more items</p>` : ''}
+      </div>
+      ` : ''}
+
+      <!-- Totals -->
+      <div class="bg-gradient-to-br from-primary/5 to-blue-50 rounded-xl p-4 space-y-1.5">
+        ${inv.data?.totals?.subtotal ? `<div class="flex justify-between text-xs text-muted"><span>Subtotal</span><span>${inv.currency||'₹'}${formatNum(inv.data.totals.subtotal)}</span></div>` : ''}
+        ${inv.data?.totals?.totalGST ? `<div class="flex justify-between text-xs text-muted"><span>GST</span><span>${inv.currency||'₹'}${formatNum(inv.data.totals.totalGST)}</span></div>` : ''}
+        <div class="flex justify-between font-bold text-ink border-t border-primary/20 pt-2 mt-2">
+          <span>Grand Total</span>
+          <span class="text-primary text-base">${inv.currency||'₹'}${formatNum(inv.grand_total)}</span>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-muted">Saved: ${formatDate(inv.created_at)}</span>
+        <span class="status-badge ${({ saved:'status-saved', draft:'status-draft', downloaded:'status-downloaded' })[inv.status]||'status-saved'}">${inv.status}</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('invoice-detail-modal').classList.remove('hidden');
+}
+
+function closeDetailModal() {
+  document.getElementById('invoice-detail-modal').classList.add('hidden');
+  SELECTED_INV = null;
+}
+
+function editInvoice() {
+  if (!SELECTED_INV) return;
+  // Store invoice data in sessionStorage so generator can load it
+  sessionStorage.setItem('inv2xl_load_invoice', JSON.stringify(SELECTED_INV.data || SELECTED_INV));
+  closeDetailModal();
+  window.location.href = 'invoice-generator.html';
+}
+
+async function confirmDeleteInvoice() {
+  if (!SELECTED_INV) return;
+  if (!confirm(`Delete invoice #${SELECTED_INV.invoice_number}? This cannot be undone.`)) return;
+
+  const id = SELECTED_INV.id;
+  closeDetailModal();
+
+  if (!SELECTED_INV._local && typeof deleteInvoice === 'function') {
+    const ok = await deleteInvoice(id);
+    if (ok) {
+      dashToast('Invoice deleted', 'success');
+    } else {
+      dashToast('Delete failed', 'error');
+      return;
+    }
+  } else {
+    // Remove from localStorage history
+    const history = JSON.parse(localStorage.getItem('inv2xl_history') || '[]');
+    const updated = history.filter(h => h._localId !== id && h.invoiceNumber !== SELECTED_INV.invoice_number);
+    localStorage.setItem('inv2xl_history', JSON.stringify(updated));
+  }
+
+  DB_INVOICES = DB_INVOICES.filter(i => i.id !== id);
+  applyFiltersAndRender();
+  updateStats();
+}
+
+/* ---- Sign Out ---- */
+async function dashSignOut() {
+  if (typeof signOutUser === 'function') {
+    await signOutUser();
+  } else {
+    localStorage.removeItem('inv2xl_user');
+  }
+  dashToast('Signed out', 'info');
+  setTimeout(() => window.location.href = 'index.html', 800);
+}
+
+/* ---- Refresh ---- */
+async function refreshInvoices() {
+  const user = JSON.parse(localStorage.getItem('inv2xl_user') || 'null');
+  if (user) await loadInvoices(user);
+  dashToast('Refreshed', 'success');
+}
+
+/* ---- Helpers ---- */
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function setSubtitle(msg) {
+  const el = document.getElementById('dash-subtitle');
+  if (el) el.textContent = msg;
+}
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatNum(n) {
+  return (parseFloat(n)||0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+function formatDate(d) {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  } catch(e) { return d; }
+}
+
+function dashToast(msg, type = 'info') {
+  const container = document.getElementById('dash-toast-container');
+  if (!container) return;
+  const colors = { success:'bg-green-600', error:'bg-red-600', info:'bg-slate-700', warning:'bg-amber-600' };
+  const toast = document.createElement('div');
+  toast.className = `${colors[type]||colors.info} text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg pointer-events-auto flex items-center gap-2 anim-in`;
+  toast.innerHTML = `<i class="fas fa-${type==='success'?'check':type==='error'?'exclamation-triangle':'info-circle'}"></i>${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+/* Expose for supabase.js */
+function onAuthChange(user) {
+  if (user) showSignedInView(user);
+}
+function showToast(msg, type) { dashToast(msg, type); }
+</script>
+
+</body>
+</html>

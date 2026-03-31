@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice to Excel Converter</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="generator.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice to Excel Converter</h1>
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'pdf-upload')">PDF Invoice Upload</button>
+            <button class="tab-button" onclick="openTab(event, 'image-upload')">Image Invoice Upload</button>
+        </div>
+
+        <div id="pdf-upload" class="tab-content active">
+            <div class="upload-box" id="pdf-drop-area">
+                <p>Drop your invoice here or</p>
+                <input type="file" id="pdf-file-input" accept="application/pdf" hidden>
+                <button onclick="document.getElementById('pdf-file-input').click()">Choose File</button>
+            </div>
+            <div id="pdf-preview" class="preview-area"></div>
+            <button id="process-pdf" style="display:none;">Process PDF</button>
+        </div>
+
+        <div id="image-upload" class="tab-content">
+            <div class="upload-box" id="image-drop-area">
+                <p>Drop your invoice here or</p>
+                <input type="file" id="image-file-input" accept="image/*" hidden>
+                <button onclick="document.getElementById(\'image-file-input\').click()">Choose File</button>
+            </div>
+            <div id="image-preview" class="preview-area"></div>
+            <button id="process-image" style="display:none;">Process Image</button>
+        </div>
+
+        <div id="data-preview-screen" class="data-preview-screen" style="display:none;">
+            <h2>Extracted Data Preview</h2>
+            <div class="invoice-details">
+                <p>Invoice Number: <span id="preview-invoice-number" contenteditable="true"></span></p>
+                <p>Date: <span id="preview-date" contenteditable="true"></span></p>
+                <p>Customer Name: <span id="preview-customer-name" contenteditable="true"></span></p>
+            </div>
+            <table id="preview-table" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be inserted here -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Grand Total:</td>
+                        <td id="preview-grand-total" contenteditable="true"></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button onclick="addRow()">Add Row</button>
+            <div class="export-options">
+            <button id="download-excel">Download Excel (.xlsx)</button>
+            <button id="copy-data">Copy Data</button>
+            <button id="share-file">Share file</button>
+            </div>
+            <p class="privacy-message">Your files are processed securely and not stored permanently</p>
+        </div>
+    </div>
+
+    <script src="ui-shell.js"></script>
+    <script>
+        let currentFile = null;
+        let currentFileType = null;
+        let extractedInvoiceData = null; 
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector(".tab-button").click();
+
+            const pdfFileInput = document.getElementById("pdf-file-input");
+            const imageFileInput = document.getElementById("image-file-input");
+            const pdfDropArea = document.getElementById("pdf-drop-area");
+            const imageDropArea = document.getElementById("image-drop-area");
+            const processPdfButton = document.getElementById("process-pdf");
+            const processImageButton = document.getElementById("process-image");
+            const downloadExcelButton = document.getElementById("download-excel");
+            const copyDataButton = document.getElementById("copy-data");
+            const shareFileButton = document.getElementById("share-file");
+
+            ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+                pdfDropArea.addEventListener(eventName, preventDefaults, false);
+                imageDropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ["dragenter", "dragover"].forEach((eventName) => {
+                pdfDropArea.addEventListener(eventName, () => highlightDropArea(pdfDropArea), false);
+                imageDropArea.addEventListener(eventName, () => highlightDropArea(imageDropArea), false);
+            });
+
+            ["dragleave", "drop"].forEach((eventName) => {
+                pdfDropArea.addEventListener(eventName, () => unhighlightDropArea(pdfDropArea), false);
+                imageDropArea.addEventListener(eventName, () => unhighlightDropArea(imageDropArea), false);
+            });
+
+            pdfDropArea.addEventListener("drop", handleDrop, false);
+            imageDropArea.addEventListener("drop", handleDrop, false);
+
+            pdfFileInput.addEventListener("change", (event) => handleFileSelect(event.target.files[0], "pdf"));
+            imageFileInput.addEventListener("change", (event) => handleFileSelect(event.target.files[0], "image"));
+
+            processPdfButton.addEventListener("click", () => processInvoice("pdf"));
+            processImageButton.addEventListener("click", () => processInvoice("image"));
+
+            downloadExcelButton.addEventListener("click", downloadExcel);
+            copyDataButton.addEventListener("click", copyData);
+            shareFileButton.addEventListener("click", shareFile);
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlightDropArea(dropArea) {
+                dropArea.classList.add("highlight");
+            }
+
+            function unhighlightDropArea(dropArea) {
+                dropArea.classList.remove("highlight");
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                const type = e.currentTarget.id === "pdf-drop-area" ? "pdf" : "image";
+                handleFileSelect(file, type);
+            }
+
+            function handleFileSelect(file, type) {
+                currentFile = file;
+                currentFileType = type;
+                const previewArea = document.getElementById(`${type}-preview`);
+                previewArea.innerHTML = `<h3>Selected File: ${file.name}</h3>`;
+                if (type === "pdf") {
+                    document.getElementById("process-pdf").style.display = "block";
+                    document.getElementById("process-image").style.display = "none";
+                } else {
+                    document.getElementById("process-image").style.display = "block";
+                    document.getElementById("process-pdf").style.display = "none";
+                }
+                document.getElementById("data-preview-screen").style.display = "none"; // Hide data preview until processed
+            }
+
+            async function processInvoice(type) {
+                if (!currentFile) {
+                    alert("Please upload a file first.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("invoice", currentFile);
+
+                try {
+                    // Show loading animation
+                    // For now, just a console log
+                    console.log("Processing invoice...");
+
+                    const response = await fetch("http://localhost:3000/upload", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    extractedInvoiceData = result.invoiceData; // Store the extracted data
+                    displayExtractedData(extractedInvoiceData);
+
+                    console.log("Extraction Result:", result);
+                } catch (error) {
+                    console.error("Error during invoice processing:", error);
+                    alert("Error processing invoice. Please try again.");
+                } finally {
+                    // Hide loading animation
+                }
+            }
+
+            function displayExtractedData(data) {
+                document.getElementById("preview-invoice-number").textContent = data.invoiceNumber || "N/A";
+                document.getElementById("preview-date").textContent = data.date || "N/A";
+                document.getElementById("preview-customer-name").textContent = data.customerName || "N/A";
+                document.getElementById("preview-grand-total").textContent = data.totalAmount || "N/A";
+
+                const tableBody = document.querySelector("#preview-table tbody");
+                tableBody.innerHTML = ""; // Clear previous rows
+
+                data.products.forEach(product => {
+                    const newRow = tableBody.insertRow();
+                    newRow.innerHTML = `
+                        <td contenteditable="true">${product.product || ""}</td>
+                        <td contenteditable="true">${product.qty || ""}</td>
+                        <td contenteditable="true">${product.price || ""}</td>
+                        <td contenteditable="true">${product.total || ""}</td>
+                        <td><button onclick="removeRow(this)">Remove</button></td>
+                    `;
+                });
+
+                document.getElementById("data-preview-screen").style.display = "block";
+            }
+
+            function addRow() {
+                const tableBody = document.querySelector("#preview-table tbody");
+                const newRow = tableBody.insertRow();
+                newRow.innerHTML = `
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td><button onclick="removeRow(this)">Remove</button></td>
+                `;
+            }
+
+            function removeRow(button) {
+                const row = button.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+            }
+
+            async function downloadExcel() {
+                if (!extractedInvoiceData) {
+                    alert("No data to export. Please process an invoice first.");
+                    return;
+                }
+
+                // Get the current editable data from the preview screen
+                const currentInvoiceData = getCurrentInvoiceDataFromPreview();
+
+                try {
+                    const response = await fetch("http://localhost:3000/export", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ invoiceData: currentInvoiceData }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "invoice-data.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error("Error downloading Excel:", error);
+                    alert("Error downloading Excel file. Please try again.");
+                }
+            }
+
+            function getCurrentInvoiceDataFromPreview() {
+                const products = [];
+                document.querySelectorAll("#preview-table tbody tr").forEach(row => {
+                    const cols = row.querySelectorAll("td");
+                    products.push({
+                        product: cols[0].textContent,
+                        qty: parseFloat(cols[1].textContent),
+                        price: parseFloat(cols[2].textContent),
+                        total: parseFloat(cols[3].textContent),
+                    });
+                });
+                return {
+                    invoiceNumber: document.getElementById("preview-invoice-number").textContent,
+                    date: document.getElementById("preview-date").textContent,
+                    customerName: document.getElementById("preview-customer-name").textContent,
+                    totalAmount: document.getElementById("preview-grand-total").textContent,
+                    products: products,
+                };
+            }
+
+            function copyData() {
+                const dataToCopy = JSON.stringify(getCurrentInvoiceDataFromPreview(), null, 2);
+                navigator.clipboard.writeText(dataToCopy).then(() => {
+                    alert("Invoice data copied to clipboard!");
+                }).catch(err => {
+                    console.error("Error copying data:", err);
+                    alert("Failed to copy data.");
+                });
+            }
+
+            function shareFile() {
+                alert("Share functionality is a PRO feature and not yet implemented.");
+            }
+        });
+
+        // Global functions for add/remove row buttons in preview screen
+        function addRow() {
+            const tableBody = document.querySelector("#preview-table tbody");
+            const newRow = tableBody.insertRow();
+            newRow.innerHTML = `
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td><button onclick="removeRow(this)">Remove</button></td>
+            `;
+        }
+
+        function removeRow(button) {
+            const row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+</body>
+</html>

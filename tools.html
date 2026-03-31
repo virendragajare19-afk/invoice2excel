@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Tools — Invoice2Excel Pro</title>
+  <meta name="description" content="Useful tools for your invoicing workflow — Invoice2Excel Pro." />
+  <meta name="theme-color" content="#2563EB" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'\><rect width=\'32\' height=\'32\' rx=\'7\' fill=\'%232563EB\'\/><rect x=\'8\' y=\'4\' width=\'14\' height=\'18\' rx=\'2\' fill=\'white\' opacity=\'.95\'\/><rect x=\'10\' y=\'9\' width=\'10\' height=\'3\' rx=\'1\' fill=\'%2310B981\'\/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8', light: '#3B82F6', lighter: '#DBEAFE' },
+            success: '#10B981', warning: '#F59E0B', danger: '#EF4444',
+            surface: '#F8FAFC', card: '#FFFFFF', ink: '#1E293B', muted: '#64748B'
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .tool-card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+      padding: 20px;
+      transition: all .2s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .tool-card:hover {
+      border-color: #2563EB;
+      box-shadow: 0 4px 20px rgba(37,99,235,.1);
+      transform: translateY(-2px);
+    }
+    .tool-icon {
+      width: 60px; height: 60px;
+      background: #EFF6FF; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 15px;
+      color: #2563EB;
+      font-size: 28px;
+    }
+  </style>
+</head>
+<body class="bg-surface font-sans text-ink min-h-screen" data-page="tools">
+
+<!-- ===== HEADER ===== -->
+<header class="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-100">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <div class="w-9 h-9 bg-gradient-to-br from-primary to-blue-700 rounded-xl flex items-center justify-center shadow-md">
+          <i class="fas fa-file-excel text-white text-base"></i>
+        </div>
+        <div>
+          <span class="font-bold text-ink text-base leading-none block">Invoice2Excel</span>
+          <span class="text-xs text-primary font-semibold leading-none">PRO</span>
+        </div>
+      </a>
+      <div class="hidden sm:flex items-center gap-1 text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div>
+      <span class="hidden sm:block text-sm font-semibold text-ink">Tools</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="dashboard.html" class="text-xs text-muted hover:text-primary transition-colors">
+        <i class="fas fa-th-large mr-1"></i> Dashboard
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="max-w-5xl mx-auto px-4 py-6 pb-20">
+  <h1 class="text-2xl font-extrabold text-ink mb-6">Useful Tools</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <a href="invoice-converter.html" class="tool-card">
+      <div class="tool-icon"><i class="fas fa-file-import"></i></div>
+      <h2 class="font-bold text-lg text-ink mb-1">Invoice to Excel Converter</h2>
+      <p class="text-muted text-sm">Upload invoices and extract data to Excel.</p>
+    </a>
+
+    <!-- Placeholder for other tools -->
+    <div class="tool-card opacity-60 pointer-events-none">
+      <div class="tool-icon"><i class="fas fa-chart-line"></i></div>
+      <h2 class="font-bold text-lg text-ink mb-1">Profit Insights <span class="text-xs font-medium text-purple-500">(PRO)</span></h2>
+      <p class="text-muted text-sm">Analyze your invoices to understand profitability.</p>
+    </div>
+
+    <div class="tool-card opacity-60 pointer-events-none">
+      <div class="tool-icon"><i class="fas fa-receipt"></i></div>
+      <h2 class="font-bold text-lg text-ink mb-1">Expense Tracker <span class="text-xs font-medium text-purple-500">(PRO)</span></h2>
+      <p class="text-muted text-sm">Track and categorize business expenses.</p>
+    </div>
+
+    <div class="tool-card opacity-60 pointer-events-none">
+      <div class="tool-icon"><i class="fas fa-cogs"></i></div>
+      <h2 class="font-bold text-lg text-ink mb-1">Custom Template Builder <span class="text-xs font-medium text-purple-500">(PRO)</span></h2>
+      <p class="text-muted text-sm">Design your own invoice templates.</p>
+    </div>
+  </div>
+</main>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="ui-shell.js"></script>
+<script>
+  // Any specific scripts for the tools page can go here
+</script>
+
+</body>
+</html>
