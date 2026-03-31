@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Settings — Business Toolkit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8' },
+            surface: '#F8FAFC', ink: '#1E293B', muted: '#64748B'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface font-sans text-ink min-h-screen pb-24" data-page="settings">
+
+<header class="bg-white shadow-sm sticky top-0 z-30 border-b border-slate-100">
+  <div class="max-w-5xl mx-auto px-4 py-3">
+    <h1 class="text-lg font-extrabold text-ink">Settings</h1>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-6">
+
+  <!-- PRO UPGRADE CTA -->
+  <div class="bg-gradient-to-r from-primary to-blue-700 rounded-3xl p-6 text-white mb-6 shadow-lg shadow-primary/20 relative overflow-hidden">
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-2">
+        <i class="fas fa-crown text-yellow-400"></i>
+        <span class="text-[10px] font-bold uppercase tracking-widest">Premium Plan</span>
+      </div>
+      <h2 class="text-xl font-black mb-1">Upgrade to Pro</h2>
+      <p class="text-xs text-blue-100 mb-4">Remove watermark, unlimited invoices & advanced tools.</p>
+      <button onclick="window.location.href='index.html#pricing'" class="bg-white text-primary font-bold text-xs px-6 py-2.5 rounded-xl shadow-md hover:scale-105 transition-transform">Get Pro for ₹199/mo</button>
+    </div>
+    <i class="fas fa-gem absolute -bottom-4 -right-4 text-8xl text-white/10 rotate-12"></i>
+  </div>
+
+  <!-- SETTINGS GROUPS -->
+  <div class="space-y-6">
+    
+    <!-- Business Profile -->
+    <section>
+      <h3 class="text-[10px] font-bold text-muted uppercase tracking-widest mb-3 ml-2">Business Profile</h3>
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <a href="invoice-generator.html" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors border-b border-slate-50">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-blue-50 text-primary rounded-xl flex items-center justify-center"><i class="fas fa-building text-sm"></i></div>
+            <span class="text-sm font-bold">Edit Business Details</span>
+          </div>
+          <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+        </a>
+        <div class="flex items-center justify-between p-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fas fa-tint text-sm"></i></div>
+            <span class="text-sm font-bold">Show Watermark</span>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="watermark-toggle" class="sr-only peer" checked onchange="toggleWatermark()">
+            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- App Preferences -->
+    <section>
+      <h3 class="text-[10px] font-bold text-muted uppercase tracking-widest mb-3 ml-2">App Preferences</h3>
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between p-4 border-b border-slate-50">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center"><i class="fas fa-bell text-sm"></i></div>
+            <span class="text-sm font-bold">Notifications</span>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+        <button onclick="exportData()" class="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center"><i class="fas fa-download text-sm"></i></div>
+            <span class="text-sm font-bold">Export All Data (JSON)</span>
+          </div>
+          <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Support -->
+    <section>
+      <h3 class="text-[10px] font-bold text-muted uppercase tracking-widest mb-3 ml-2">Support</h3>
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <a href="mailto:support@inv2xl.pro" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors border-b border-slate-50">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fas fa-headset text-sm"></i></div>
+            <span class="text-sm font-bold">Contact Support</span>
+          </div>
+          <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+        </a>
+        <div class="p-4 text-center">
+          <p class="text-[10px] text-muted font-bold uppercase">Version 2.0.0 (Stable)</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</main>
+
+<script src="ui-shell.js"></script>
+<script>
+'use strict';
+
+function toggleWatermark() {
+  const val = document.getElementById('watermark-toggle').checked;
+  localStorage.setItem('inv2xl_watermark', val);
+}
+
+function exportData() {
+  const data = {
+    history: JSON.parse(localStorage.getItem('inv2xl_history') || '[]'),
+    clients: JSON.parse(localStorage.getItem('inv2xl_clients') || '[]'),
+    usage: JSON.parse(localStorage.getItem('inv2xl_usage') || '{}'),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'inv2xl_backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const wm = localStorage.getItem('inv2xl_watermark');
+  if (wm !== null) document.getElementById('watermark-toggle').checked = wm === 'true';
+});
+</script>
+
+</body>
+</html>

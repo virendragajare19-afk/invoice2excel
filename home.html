@@ -4,12 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Dashboard — Business Toolkit</title>
-  <meta name="theme-color" content="#2563EB" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Crect x='8' y='4' width='14' height='18' rx='2' fill='white' opacity='.95'/%3E%3Crect x='10' y='9' width='10' height='3' rx='1' fill='%2310B981'/%3E%3C/svg%3E" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
@@ -18,145 +12,123 @@
       theme: {
         extend: {
           colors: {
-            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8', light: '#3B82F6', lighter: '#DBEAFE' },
-            success: '#10B981', warning: '#F59E0B', danger: '#EF4444',
-            surface: '#F8FAFC', card: '#FFFFFF', ink: '#1E293B', muted: '#64748B'
-          },
-          fontFamily: { sans: ['Inter', 'sans-serif'] }
+            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8' },
+            surface: '#F8FAFC', ink: '#1E293B', muted: '#64748B'
+          }
         }
       }
     }
   </script>
 </head>
-<body class="bg-surface font-sans text-ink min-h-screen pb-16" data-page="dashboard">
+<body class="bg-surface font-sans text-ink min-h-screen pb-24" data-page="dashboard">
 
 <!-- HEADER -->
 <header class="bg-white shadow-sm sticky top-0 z-30 border-b border-slate-100">
-  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <div class="w-9 h-9 bg-gradient-to-br from-primary to-blue-700 rounded-xl flex items-center justify-center shadow-md overflow-hidden">
-        <span class="text-white text-sm font-extrabold">BT</span>
+      <div class="w-9 h-9 bg-gradient-to-br from-primary to-blue-700 rounded-xl flex items-center justify-center shadow-md">
+        <i class="fas fa-briefcase text-white text-base"></i>
       </div>
       <div>
         <span class="font-bold text-ink text-base leading-none block">Business Toolkit</span>
-        <span class="text-xs text-primary font-semibold leading-none">for Indian Sellers</span>
+        <span class="text-[10px] text-primary font-bold leading-none uppercase tracking-wider">Indian Sellers</span>
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <a href="invoice-generator.html" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow hover:shadow-md transition-all flex items-center gap-1.5">
-        <i class="fas fa-file-invoice text-xs"></i><span class="hidden sm:inline">New Invoice</span>
-      </a>
+      <div id="dash-user-avatar" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-primary border border-slate-200"></div>
     </div>
   </div>
 </header>
 
-<main class="max-w-4xl mx-auto px-4 py-5 pb-6">
+<main class="max-w-5xl mx-auto px-4 py-6">
 
   <!-- GREETING -->
-  <section class="mb-5">
-    <h1 class="text-xl font-extrabold text-ink mb-1">Dashboard</h1>
-    <p class="text-sm text-muted">Track your invoices, revenue, profit and key tools in one place.</p>
+  <section class="mb-6">
+    <h1 class="text-2xl font-extrabold text-ink mb-1" id="greeting-text">Hello! 👋</h1>
+    <p class="text-sm text-muted">Here's how your business is doing today.</p>
   </section>
 
   <!-- KPI CARDS -->
-  <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-    <div class="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
-      <p class="text-[11px] text-muted mb-0.5">Today&apos;s Sales</p>
-      <p id="kpi-today-sales" class="text-lg font-extrabold text-ink">₹0</p>
+  <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+      <p class="text-[11px] text-muted font-bold uppercase tracking-wider mb-1">Today's Sales</p>
+      <p id="kpi-today-sales" class="text-xl font-extrabold text-ink">₹0</p>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
-      <p class="text-[11px] text-muted mb-0.5">This Week Revenue</p>
-      <p id="kpi-week-revenue" class="text-lg font-extrabold text-ink">₹0</p>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+      <p class="text-[11px] text-muted font-bold uppercase tracking-wider mb-1">Week Revenue</p>
+      <p id="kpi-week-revenue" class="text-xl font-extrabold text-ink">₹0</p>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
-      <p class="text-[11px] text-muted mb-0.5">Estimated Profit</p>
-      <p id="kpi-profit" class="text-lg font-extrabold text-green-600">₹0</p>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+      <p class="text-[11px] text-muted font-bold uppercase tracking-wider mb-1">Est. Profit</p>
+      <p id="kpi-profit" class="text-xl font-extrabold text-green-600">₹0</p>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
-      <p class="text-[11px] text-muted mb-0.5">Invoices</p>
-      <p id="kpi-invoices" class="text-lg font-extrabold text-primary">0</p>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+      <p class="text-[11px] text-muted font-bold uppercase tracking-wider mb-1">Invoices</p>
+      <p id="kpi-invoices" class="text-xl font-extrabold text-primary">0</p>
     </div>
   </section>
 
   <!-- QUICK ACTIONS -->
-  <section class="mb-5">
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-bold text-ink">Quick Actions</h2>
-      </div>
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <button onclick="location.href='invoice-generator.html'" class="card-hover bg-primary/5 text-primary rounded-xl py-3 flex flex-col items-center justify-center text-[11px] font-semibold">
-          <i class="fas fa-file-invoice text-base mb-1"></i>
-          Create Invoice
-        </button>
-        <button onclick="openQuotation()" class="card-hover bg-amber-50 text-amber-700 rounded-xl py-3 flex flex-col items-center justify-center text-[11px] font-semibold">
-          <i class="fas fa-file-signature text-base mb-1"></i>
-          Create Quotation
-        </button>
-        <button onclick="location.href='tools.html#expense-tracker'" class="card-hover bg-rose-50 text-rose-700 rounded-xl py-3 flex flex-col items-center justify-center text-[11px] font-semibold">
-          <i class="fas fa-wallet text-base mb-1"></i>
-          Add Expense
-        </button>
-      </div>
+  <section class="mb-6">
+    <h2 class="text-sm font-bold text-ink mb-3 uppercase tracking-wider">Quick Actions</h2>
+    <div class="grid grid-cols-3 gap-3">
+      <a href="invoice-generator.html" class="bg-primary text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+        <i class="fas fa-plus-circle text-2xl mb-2"></i>
+        <span class="text-xs font-bold">New Invoice</span>
+      </a>
+      <button onclick="openQuotation()" class="bg-emerald-500 text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform">
+        <i class="fas fa-file-signature text-2xl mb-2"></i>
+        <span class="text-xs font-bold">Quotation</span>
+      </button>
+      <button onclick="openExpense()" class="bg-rose-500 text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-lg shadow-rose-500/20 hover:scale-105 transition-transform">
+        <i class="fas fa-wallet text-2xl mb-2"></i>
+        <span class="text-xs font-bold">Add Expense</span>
+      </button>
     </div>
   </section>
 
-  <!-- SIMPLE ANALYTICS CARDS -->
-  <section class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold text-ink">Revenue Trend (Last 7 days)</h3>
+  <!-- ANALYTICS & TOOLS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Revenue Trend -->
+    <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+      <h3 class="text-sm font-bold text-ink mb-4 uppercase tracking-wider">Revenue Trend</h3>
+      <div id="rev-bars" class="flex items-end gap-2 h-32">
+        <!-- bars injected by JS -->
       </div>
-      <div id="rev-bars" class="flex items-end gap-1 h-20">
-        <!-- mini bars injected by JS -->
+      <div class="flex justify-between mt-2 text-[10px] text-muted font-bold">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
       </div>
-      <p class="text-[11px] text-muted mt-2">Simple visual – no heavy charts.</p>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold text-ink">Top Clients (by amount)</h3>
-      </div>
-      <ul id="top-clients" class="space-y-1.5 text-xs text-muted">
-        <!-- populated by JS -->
-      </ul>
-    </div>
-  </section>
 
-  <!-- TOOLS SHORTCUTS -->
-  <section class="mb-4">
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold text-ink">Popular Tools</h3>
-        <a href="tools.html" class="text-[11px] text-primary font-semibold">View all</a>
+    <!-- Popular Tools -->
+    <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-bold text-ink uppercase tracking-wider">Popular Tools</h3>
+        <a href="tools.html" class="text-xs text-primary font-bold">View All</a>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-        <button onclick="location.href='tools.html#profit-calculator'" class="card-hover bg-slate-50 rounded-xl p-3 flex flex-col items-start">
-          <i class="fas fa-chart-line text-emerald-500 mb-1"></i>
-          <span class="font-semibold text-ink">Profit Calculator</span>
-          <span class="text-muted mt-0.5">Know margin %</span>
-        </button>
-        <button onclick="location.href='tools.html#gst-calculator'" class="card-hover bg-slate-50 rounded-xl p-3 flex flex-col items-start">
-          <i class="fas fa-percent text-amber-500 mb-1"></i>
-          <span class="font-semibold text-ink">GST Calculator</span>
-          <span class="text-muted mt-0.5">CGST / SGST</span>
-        </button>
-        <button onclick="location.href='tools.html#invoice-converter'" class="card-hover bg-slate-50 rounded-xl p-3 flex flex-col items-start">
-          <i class="fas fa-file-excel text-green-600 mb-1"></i>
-          <span class="font-semibold text-ink">Invoice → Excel</span>
-          <span class="text-muted mt-0.5">Smart extraction</span>
-        </button>
-        <button onclick="location.href='tools.html#whatsapp-generator'" class="card-hover bg-slate-50 rounded-xl p-3 flex flex-col items-start">
-          <i class="fab fa-whatsapp text-green-500 mb-1"></i>
-          <span class="font-semibold text-ink">WhatsApp Templates</span>
-          <span class="text-muted mt-0.5">Copy & send</span>
-        </button>
+      <div class="grid grid-cols-2 gap-3">
+        <a href="tools.html#profit-calc" class="bg-slate-50 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-100 transition-colors">
+          <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center"><i class="fas fa-chart-line text-sm"></i></div>
+          <span class="text-xs font-bold">Profit Calc</span>
+        </a>
+        <a href="tools.html#gst-calc" class="bg-slate-50 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-100 transition-colors">
+          <div class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center"><i class="fas fa-percent text-sm"></i></div>
+          <span class="text-xs font-bold">GST Calc</span>
+        </a>
+        <a href="invoice-converter.html" class="bg-slate-50 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-100 transition-colors">
+          <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center"><i class="fas fa-file-excel text-sm"></i></div>
+          <span class="text-xs font-bold">Inv → Excel</span>
+        </a>
+        <a href="tools.html#whatsapp" class="bg-slate-50 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-100 transition-colors">
+          <div class="w-8 h-8 bg-green-100 text-green-600 rounded-lg flex items-center justify-center"><i class="fab fa-whatsapp text-sm"></i></div>
+          <span class="text-xs font-bold">WhatsApp</span>
+        </a>
       </div>
     </div>
-  </section>
+  </div>
 
 </main>
 
-<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase.js"></script>
 <script src="ui-shell.js"></script>
@@ -167,48 +139,45 @@ document.addEventListener('DOMContentLoaded', () => {
   hydrateDashboard();
 });
 
-function hydrateDashboard() {
-  // Pull invoices from same local history as dashboard
-  const local = JSON.parse(localStorage.getItem('inv2xl_history') || '[]');
-  const invoices = local.map(i => ({
-    total: parseFloat(i.totals?.grandTotal || i.grandTotal || 0) || 0,
-    date: i.invoiceDate || i.invoice_date,
-    client: i.client?.name || i.client_name || '',
-  }));
+async function hydrateDashboard() {
+  const user = JSON.parse(localStorage.getItem('inv2xl_user') || 'null');
+  if (user) {
+    document.getElementById('greeting-text').textContent = `Hello, \${user.name.split(' ')[0]}! 👋`;
+    const avatar = document.getElementById('dash-user-avatar');
+    if (user.avatar) avatar.innerHTML = \`<img src="\${user.avatar}" class="w-full h-full rounded-full object-cover" />\`;
+    else avatar.textContent = user.name.charAt(0).toUpperCase();
+  }
 
+  const history = JSON.parse(localStorage.getItem('inv2xl_history') || '[]');
   const today = new Date().toDateString();
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 6);
 
   let todaySales = 0;
   let weekRevenue = 0;
-
   const perDay = {};
 
-  invoices.forEach(inv => {
-    const d = inv.date ? new Date(inv.date) : null;
-    if (!d || isNaN(d)) return;
-    const ds = d.toDateString();
-    if (ds === today) todaySales += inv.total;
-    if (d >= weekStart) weekRevenue += inv.total;
+  history.forEach(inv => {
+    const total = parseFloat(inv.totals?.grandTotal || inv.grand_total || 0);
+    const date = new Date(inv.invoiceDate || inv.invoice_date || inv.savedAt);
+    if (isNaN(date)) return;
 
-    const key = d.toISOString().slice(0,10);
-    perDay[key] = (perDay[key] || 0) + inv.total;
+    if (date.toDateString() === today) todaySales += total;
+    if (date >= weekStart) weekRevenue += total;
+
+    const key = date.toISOString().slice(0,10);
+    perDay[key] = (perDay[key] || 0) + total;
   });
 
-  setText('kpi-today-sales', formatINR(todaySales));
-  setText('kpi-week-revenue', formatINR(weekRevenue));
+  document.getElementById('kpi-today-sales').textContent = formatINR(todaySales);
+  document.getElementById('kpi-week-revenue').textContent = formatINR(weekRevenue);
+  document.getElementById('kpi-profit').textContent = formatINR(weekRevenue * 0.25); // 25% est profit
+  document.getElementById('kpi-invoices').textContent = history.length;
 
-  // Simple estimated profit = 25% of revenue (placeholder)
-  const estProfit = weekRevenue * 0.25;
-  setText('kpi-profit', formatINR(estProfit));
-  setText('kpi-invoices', String(invoices.length));
-
-  renderRevBars(perDay, weekStart);
-  renderTopClients(invoices);
+  renderTrendBars(perDay, weekStart);
 }
 
-function renderRevBars(perDay, start) {
+function renderTrendBars(perDay, start) {
   const wrap = document.getElementById('rev-bars');
   if (!wrap) return;
   wrap.innerHTML = '';
@@ -217,44 +186,23 @@ function renderRevBars(perDay, start) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
     const key = d.toISOString().slice(0,10);
-    days.push({ key, label: d.getDate(), value: perDay[key] || 0 });
+    days.push({ key, value: perDay[key] || 0 });
   }
   const max = Math.max(...days.map(d => d.value), 1);
   days.forEach(d => {
-    const h = 8 + (d.value / max) * 48;
+    const h = 10 + (d.value / max) * 90;
     const bar = document.createElement('div');
-    bar.className = 'flex-1 flex flex-col items-center';
+    bar.className = 'flex-1 bg-primary/10 rounded-t-lg relative group';
     bar.innerHTML = \`
-      <div class="w-3 rounded-full bg-primary/20 overflow-hidden">
-        <div class="w-full bg-primary h-[\${h}px] rounded-full"></div>
-      </div>
-      <span class="mt-1 text-[10px] text-muted">\${d.label}</span>
+      <div class="absolute bottom-0 left-0 right-0 bg-primary rounded-t-lg transition-all duration-500" style="height:\${h}%"></div>
+      <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-ink text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">\${formatINR(d.value)}</div>
     \`;
     wrap.appendChild(bar);
   });
 }
 
-function renderTopClients(invoices) {
-  const list = document.getElementById('top-clients');
-  if (!list) return;
-  const agg = {};
-  invoices.forEach(inv => {
-    const name = inv.client || 'Unknown';
-    agg[name] = (agg[name] || 0) + inv.total;
-  });
-  const top = Object.entries(agg)
-    .sort((a,b) => b[1] - a[1])
-    .slice(0, 4);
-  if (!top.length) {
-    list.innerHTML = '<li class="text-xs text-muted">No invoices yet. Create one to see insights.</li>';
-    return;
-  }
-  list.innerHTML = top.map(([name, total]) => \`
-    <li class="flex items-center justify-between">
-      <span class="truncate max-w-[140px]">\${escapeHtml(name)}</span>
-      <span class="font-semibold text-ink">\${formatINR(total)}</span>
-    </li>
-  \`).join('');
+function formatINR(n) {
+  return '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 }
 
 function openQuotation() {
@@ -262,20 +210,10 @@ function openQuotation() {
   window.location.href = 'invoice-generator.html';
 }
 
-function setText(id, text) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = text;
-}
-
-function formatINR(n) {
-  return '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
-}
-
-function escapeHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function openExpense() {
+  window.location.href = 'tools.html#expense-tracker';
 }
 </script>
 
 </body>
 </html>
-

@@ -3,14 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Tools — Invoice2Excel Pro</title>
-  <meta name="description" content="Useful tools for your invoicing workflow — Invoice2Excel Pro." />
-  <meta name="theme-color" content="#2563EB" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'\><rect width=\'32\' height=\'32\' rx=\'7\' fill=\'%232563EB\'\/><rect x=\'8\' y=\'4\' width=\'14\' height=\'18\' rx=\'2\' fill=\'white\' opacity=\'.95\'\/><rect x=\'10\' y=\'9\' width=\'10\' height=\'3\' rx=\'1\' fill=\'%2310B981\'\/></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Tools — Business Toolkit</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
@@ -19,105 +12,172 @@
       theme: {
         extend: {
           colors: {
-            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8', light: '#3B82F6', lighter: '#DBEAFE' },
-            success: '#10B981', warning: '#F59E0B', danger: '#EF4444',
-            surface: '#F8FAFC', card: '#FFFFFF', ink: '#1E293B', muted: '#64748B'
-          },
-          fontFamily: { sans: ['Inter', 'sans-serif'] }
+            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8' },
+            surface: '#F8FAFC', ink: '#1E293B', muted: '#64748B'
+          }
         }
       }
     }
   </script>
-  <style>
-    .tool-card {
-      background: white;
-      border-radius: 16px;
-      border: 1px solid #E2E8F0;
-      padding: 20px;
-      transition: all .2s;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    .tool-card:hover {
-      border-color: #2563EB;
-      box-shadow: 0 4px 20px rgba(37,99,235,.1);
-      transform: translateY(-2px);
-    }
-    .tool-icon {
-      width: 60px; height: 60px;
-      background: #EFF6FF; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 15px;
-      color: #2563EB;
-      font-size: 28px;
-    }
-  </style>
 </head>
-<body class="bg-surface font-sans text-ink min-h-screen" data-page="tools">
+<body class="bg-surface font-sans text-ink min-h-screen pb-24" data-page="tools">
 
-<!-- ===== HEADER ===== -->
-<header class="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-100">
+<header class="bg-white shadow-sm sticky top-0 z-30 border-b border-slate-100">
   <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-        <div class="w-9 h-9 bg-gradient-to-br from-primary to-blue-700 rounded-xl flex items-center justify-center shadow-md">
-          <i class="fas fa-file-excel text-white text-base"></i>
-        </div>
-        <div>
-          <span class="font-bold text-ink text-base leading-none block">Invoice2Excel</span>
-          <span class="text-xs text-primary font-semibold leading-none">PRO</span>
-        </div>
-      </a>
-      <div class="hidden sm:flex items-center gap-1 text-slate-300"><i class="fas fa-chevron-right text-xs"></i></div>
-      <span class="hidden sm:block text-sm font-semibold text-ink">Tools</span>
-    </div>
+    <h1 class="text-lg font-extrabold text-ink">Business Tools</h1>
     <div class="flex items-center gap-2">
-      <a href="dashboard.html" class="text-xs text-muted hover:text-primary transition-colors">
-        <i class="fas fa-th-large mr-1"></i> Dashboard
-      </a>
+      <span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold uppercase tracking-wider">8 Tools</span>
     </div>
   </div>
 </header>
 
-<!-- ===== MAIN ===== -->
-<main class="max-w-5xl mx-auto px-4 py-6 pb-20">
-  <h1 class="text-2xl font-extrabold text-ink mb-6">Useful Tools</h1>
+<main class="max-w-5xl mx-auto px-4 py-6">
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-    <a href="invoice-converter.html" class="tool-card">
-      <div class="tool-icon"><i class="fas fa-file-import"></i></div>
-      <h2 class="font-bold text-lg text-ink mb-1">Invoice to Excel Converter</h2>
-      <p class="text-muted text-sm">Upload invoices and extract data to Excel.</p>
+  <!-- TOOL GRID -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+    <button onclick="showTool('profit-calc')" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:border-primary transition-all flex flex-col items-center text-center">
+      <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-chart-line text-xl"></i></div>
+      <span class="text-xs font-bold">Profit Calculator</span>
+    </button>
+    <button onclick="showTool('gst-calc')" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:border-primary transition-all flex flex-col items-center text-center">
+      <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-percent text-xl"></i></div>
+      <span class="text-xs font-bold">GST Calculator</span>
+    </button>
+    <button onclick="showTool('expense-tracker')" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:border-primary transition-all flex flex-col items-center text-center">
+      <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-wallet text-xl"></i></div>
+      <span class="text-xs font-bold">Expense Tracker</span>
+    </button>
+    <a href="invoice-converter.html" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:border-primary transition-all flex flex-col items-center text-center">
+      <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-file-excel text-xl"></i></div>
+      <span class="text-xs font-bold">Inv → Excel</span>
     </a>
+    <button onclick="showTool('whatsapp')" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:border-primary transition-all flex flex-col items-center text-center">
+      <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-3"><i class="fab fa-whatsapp text-xl"></i></div>
+      <span class="text-xs font-bold">WhatsApp Templates</span>
+    </button>
+    <button onclick="showTool('delivery')" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:border-primary transition-all flex flex-col items-center text-center">
+      <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-truck text-xl"></i></div>
+      <span class="text-xs font-bold">Delivery Slip</span>
+    </button>
+  </div>
 
-    <!-- Placeholder for other tools -->
-    <div class="tool-card opacity-60 pointer-events-none">
-      <div class="tool-icon"><i class="fas fa-chart-line"></i></div>
-      <h2 class="font-bold text-lg text-ink mb-1">Profit Insights <span class="text-xs font-medium text-purple-500">(PRO)</span></h2>
-      <p class="text-muted text-sm">Analyze your invoices to understand profitability.</p>
-    </div>
-
-    <div class="tool-card opacity-60 pointer-events-none">
-      <div class="tool-icon"><i class="fas fa-receipt"></i></div>
-      <h2 class="font-bold text-lg text-ink mb-1">Expense Tracker <span class="text-xs font-medium text-purple-500">(PRO)</span></h2>
-      <p class="text-muted text-sm">Track and categorize business expenses.</p>
-    </div>
-
-    <div class="tool-card opacity-60 pointer-events-none">
-      <div class="tool-icon"><i class="fas fa-cogs"></i></div>
-      <h2 class="font-bold text-lg text-ink mb-1">Custom Template Builder <span class="text-xs font-medium text-purple-500">(PRO)</span></h2>
-      <p class="text-muted text-sm">Design your own invoice templates.</p>
+  <!-- TOOL MODAL / OVERLAY -->
+  <div id="tool-overlay" class="hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl overflow-hidden animate-slide-up">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h2 id="tool-title" class="font-extrabold text-ink">Tool Name</h2>
+        <button onclick="closeTool()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-muted"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="tool-content" class="p-6 max-h-[80vh] overflow-y-auto">
+        <!-- Tool UI injected here -->
+      </div>
     </div>
   </div>
+
 </main>
 
-<!-- ===== SCRIPTS ===== -->
 <script src="ui-shell.js"></script>
 <script>
-  // Any specific scripts for the tools page can go here
+'use strict';
+
+function showTool(id) {
+  const overlay = document.getElementById('tool-overlay');
+  const title = document.getElementById('tool-title');
+  const content = document.getElementById('tool-content');
+  overlay.classList.remove('hidden');
+
+  if (id === 'profit-calc') {
+    title.textContent = 'Profit Calculator';
+    content.innerHTML = `
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="text-[10px] font-bold text-muted uppercase">Cost Price (₹)</label><input type="number" id="pc-cp" class="w-full border border-slate-200 rounded-xl p-3 text-sm" value="100" oninput="calcProfit()" /></div>
+          <div><label class="text-[10px] font-bold text-muted uppercase">Selling Price (₹)</label><input type="number" id="pc-sp" class="w-full border border-slate-200 rounded-xl p-3 text-sm" value="150" oninput="calcProfit()" /></div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="text-[10px] font-bold text-muted uppercase">Shipping (₹)</label><input type="number" id="pc-ship" class="w-full border border-slate-200 rounded-xl p-3 text-sm" value="0" oninput="calcProfit()" /></div>
+          <div><label class="text-[10px] font-bold text-muted uppercase">Platform Fee (₹)</label><input type="number" id="pc-fee" class="w-full border border-slate-200 rounded-xl p-3 text-sm" value="0" oninput="calcProfit()" /></div>
+        </div>
+        <div class="bg-emerald-50 rounded-2xl p-5 text-center">
+          <p class="text-xs text-emerald-600 font-bold uppercase mb-1">Net Profit</p>
+          <p id="pc-result" class="text-3xl font-black text-emerald-700">₹50</p>
+          <p id="pc-margin" class="text-xs text-emerald-600 mt-1 font-bold">Margin: 33.3%</p>
+        </div>
+      </div>
+    `;
+    calcProfit();
+  } else if (id === 'gst-calc') {
+    title.textContent = 'GST Calculator';
+    content.innerHTML = `
+      <div class="space-y-4">
+        <div><label class="text-[10px] font-bold text-muted uppercase">Amount (₹)</label><input type="number" id="gc-amt" class="w-full border border-slate-200 rounded-xl p-3 text-sm" value="1000" oninput="calcGST()" /></div>
+        <div><label class="text-[10px] font-bold text-muted uppercase">GST Rate (%)</label>
+          <select id="gc-rate" class="w-full border border-slate-200 rounded-xl p-3 text-sm" onchange="calcGST()">
+            <option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option>
+          </select>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-5 space-y-2">
+          <div class="flex justify-between text-sm"><span>CGST (9%)</span><span id="gc-cgst" class="font-bold">₹90</span></div>
+          <div class="flex justify-between text-sm"><span>SGST (9%)</span><span id="gc-sgst" class="font-bold">₹90</span></div>
+          <div class="flex justify-between text-lg font-black border-t border-slate-200 pt-2 mt-2"><span>Total</span><span id="gc-total" class="text-primary">₹1180</span></div>
+        </div>
+      </div>
+    `;
+    calcGST();
+  } else if (id === 'whatsapp') {
+    title.textContent = 'WhatsApp Templates';
+    content.innerHTML = `
+      <div class="space-y-4">
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+          <p class="text-[10px] font-bold text-primary uppercase mb-2">Order Confirmation</p>
+          <p class="text-xs text-ink leading-relaxed mb-3">Hi [Name], thank you for your order! Your invoice #[InvNo] for ₹[Amount] is confirmed. We will ship it soon.</p>
+          <button onclick="copyText(this)" class="w-full bg-white border border-slate-200 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">Copy Message</button>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+          <p class="text-[10px] font-bold text-rose-600 uppercase mb-2">Payment Reminder</p>
+          <p class="text-xs text-ink leading-relaxed mb-3">Hi [Name], a friendly reminder that payment for invoice #[InvNo] (₹[Amount]) is pending. Please clear it at your earliest.</p>
+          <button onclick="copyText(this)" class="w-full bg-white border border-slate-200 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">Copy Message</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function closeTool() {
+  document.getElementById('tool-overlay').classList.add('hidden');
+}
+
+function calcProfit() {
+  const cp = parseFloat(document.getElementById('pc-cp').value) || 0;
+  const sp = parseFloat(document.getElementById('pc-sp').value) || 0;
+  const ship = parseFloat(document.getElementById('pc-ship').value) || 0;
+  const fee = parseFloat(document.getElementById('pc-fee').value) || 0;
+  const profit = sp - cp - ship - fee;
+  const margin = sp > 0 ? (profit / sp) * 100 : 0;
+  document.getElementById('pc-result').textContent = '₹' + profit.toFixed(0);
+  document.getElementById('pc-margin').textContent = 'Margin: ' + margin.toFixed(1) + '%';
+}
+
+function calcGST() {
+  const amt = parseFloat(document.getElementById('gc-amt').value) || 0;
+  const rate = parseFloat(document.getElementById('gc-rate').value) || 0;
+  const gst = amt * (rate / 100);
+  document.getElementById('gc-cgst').textContent = '₹' + (gst / 2).toFixed(2);
+  document.getElementById('gc-sgst').textContent = '₹' + (gst / 2).toFixed(2);
+  document.getElementById('gc-total').textContent = '₹' + (amt + gst).toFixed(2);
+}
+
+function copyText(btn) {
+  const text = btn.previousElementSibling.textContent;
+  navigator.clipboard.writeText(text);
+  const orig = btn.textContent;
+  btn.textContent = 'Copied! ✓';
+  btn.classList.add('text-emerald-600');
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.classList.remove('text-emerald-600');
+  }, 2000);
+}
 </script>
 
 </body>

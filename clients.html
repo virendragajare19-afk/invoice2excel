@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Clients — Business Toolkit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#2563EB', dark: '#1D4ED8' },
+            surface: '#F8FAFC', ink: '#1E293B', muted: '#64748B'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface font-sans text-ink min-h-screen pb-24" data-page="clients">
+
+<header class="bg-white shadow-sm sticky top-0 z-30 border-b border-slate-100">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <h1 class="text-lg font-extrabold text-ink">My Clients</h1>
+    <button onclick="openClientModal()" class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg shadow-md flex items-center gap-1.5">
+      <i class="fas fa-plus"></i> Add Client
+    </button>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-6">
+
+  <!-- SEARCH -->
+  <div class="relative mb-6">
+    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-muted text-sm"></i>
+    <input type="text" id="client-search" placeholder="Search by name or phone..." class="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm" oninput="renderClients()" />
+  </div>
+
+  <!-- CLIENT LIST -->
+  <div id="client-list" class="space-y-3">
+    <!-- clients injected here -->
+  </div>
+
+  <!-- ADD CLIENT MODAL -->
+  <div id="client-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl overflow-hidden animate-modal-in">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="font-extrabold text-ink">Add New Client</h2>
+        <button onclick="closeClientModal()" class="text-muted"><i class="fas fa-times"></i></button>
+      </div>
+      <form onsubmit="saveClient(event)" class="p-6 space-y-4">
+        <div><label class="text-[10px] font-bold text-muted uppercase">Client Name *</label><input type="text" id="c-name" required class="w-full border border-slate-200 rounded-xl p-3 text-sm" placeholder="Full Name / Company" /></div>
+        <div><label class="text-[10px] font-bold text-muted uppercase">Phone Number</label><input type="tel" id="c-phone" class="w-full border border-slate-200 rounded-xl p-3 text-sm" placeholder="+91 98765 43210" /></div>
+        <div><label class="text-[10px] font-bold text-muted uppercase">GSTIN (Optional)</label><input type="text" id="c-gst" class="w-full border border-slate-200 rounded-xl p-3 text-sm" placeholder="29ABCDE1234F1Z5" /></div>
+        <div><label class="text-[10px] font-bold text-muted uppercase">Address</label><textarea id="c-address" class="w-full border border-slate-200 rounded-xl p-3 text-sm resize-none" rows="2" placeholder="Street, City, State"></textarea></div>
+        <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-primary-dark transition-all">Save Client</button>
+      </form>
+    </div>
+  </div>
+
+</main>
+
+<script src="ui-shell.js"></script>
+<script>
+'use strict';
+
+let CLIENTS = JSON.parse(localStorage.getItem('inv2xl_clients') || '[]');
+
+function renderClients() {
+  const list = document.getElementById('client-list');
+  const q = document.getElementById('client-search').value.toLowerCase();
+  const filtered = CLIENTS.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
+
+  if (filtered.length === 0) {
+    list.innerHTML = \`
+      <div class="text-center py-12">
+        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300"><i class="fas fa-users text-2xl"></i></div>
+        <p class="text-sm text-muted">No clients found.</p>
+      </div>
+    \`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((c, i) => \`
+    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">\${c.name.charAt(0).toUpperCase()}</div>
+        <div>
+          <p class="text-sm font-bold text-ink">\${c.name}</p>
+          <p class="text-[11px] text-muted">\${c.phone || 'No phone'}</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="deleteClient(\${i})" class="w-8 h-8 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><i class="fas fa-trash-alt text-xs"></i></button>
+        <button onclick="window.location.href='invoice-generator.html?client=\${i}'" class="w-8 h-8 text-primary hover:bg-primary-50 rounded-lg transition-colors"><i class="fas fa-file-invoice text-xs"></i></button>
+      </div>
+    </div>
+  \`).join('');
+}
+
+function openClientModal() { document.getElementById('client-modal').classList.remove('hidden'); }
+function closeClientModal() { document.getElementById('client-modal').classList.add('hidden'); }
+
+function saveClient(e) {
+  e.preventDefault();
+  const client = {
+    name: document.getElementById('c-name').value,
+    phone: document.getElementById('c-phone').value,
+    gst: document.getElementById('c-gst').value,
+    address: document.getElementById('c-address').value,
+  };
+  CLIENTS.unshift(client);
+  localStorage.setItem('inv2xl_clients', JSON.stringify(CLIENTS));
+  renderClients();
+  closeClientModal();
+  e.target.reset();
+}
+
+function deleteClient(i) {
+  if (confirm('Delete this client?')) {
+    CLIENTS.splice(i, 1);
+    localStorage.setItem('inv2xl_clients', JSON.stringify(CLIENTS));
+    renderClients();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', renderClients);
+</script>
+
+</body>
+</html>
